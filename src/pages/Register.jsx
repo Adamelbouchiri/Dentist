@@ -1,11 +1,21 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { FaEye, FaEyeSlash, FaFacebook } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
+import { useNavigate } from "react-router-dom";
+
+import axios from "axios";
+import AppContext from "../context/AppProvider";
+
 export const Register = () => {
+
+  const {setToken} = useContext(AppContext)
+
+  const navigate = useNavigate();
 
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
+  const [errors, setErrors] = useState([]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -14,11 +24,26 @@ export const Register = () => {
     password_confirmation: "",
   });
 
-  const handleSubmit = (e) => {
+  async function handleRegister(e) {
     e.preventDefault();
+    setErrors({});
 
-    console.log(formData);
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/register",
+        formData
+      );
+
+      const data = response.data;
+
+      localStorage.setItem('token', data.token);
+      setToken(data.token)
+      // navigate('/SecondRegistration');
+    } catch (error) {
+      setErrors(error.response.data.errors);
+    }
   }
+  
 
   return (
     <div className="flex justify-center py-10 px-6 lg:px-10 xl:px-38">
@@ -35,7 +60,7 @@ export const Register = () => {
         </div>
 
         <div className="pt-4">
-          <form onSubmit={(e) => handleSubmit(e)}>
+          <form onSubmit={(e) => handleRegister(e)}>
             <div className="pb-2">
               <label
                 htmlFor="full-name"
@@ -49,8 +74,11 @@ export const Register = () => {
                 value={formData.name}
                 className="w-full p-3 mt-4 rounded-lg border border-gray-200 focus:outline-none focus:border-primary-500 shadow-[0_0_10px_#3802ff33]"
                 placeholder="Enter your full name"
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
               />
+              {errors.name && <span className="text-red-500 text-sm">{errors.name}</span>}
             </div>
 
             <div className="pb-2">
@@ -65,8 +93,11 @@ export const Register = () => {
                 value={formData.email}
                 className="w-full p-3 mt-4 rounded-lg border border-gray-200 focus:outline-none focus:border-primary-500 shadow-[0_0_10px_#3802ff33]"
                 placeholder="Enter your email address"
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
               />
+              {errors.email && <span className="text-red-500 text-sm">{errors.email}</span>}
             </div>
 
             <div className="pb-2">
@@ -83,23 +114,23 @@ export const Register = () => {
                   value={formData.password}
                   className="w-full p-3 rounded-lg border border-gray-200 focus:outline-none focus:border-primary-500 shadow-[0_0_10px_#3802ff33]"
                   placeholder="Enter your password"
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                 />
-                {
-                  showPassword1 ? (
-                    <FaEye
-                      className="absolute top-1/2 right-4 translate-y-[-50%] text-gray-400 text-2xl cursor-pointer"
-                      onClick={() => setShowPassword1(!showPassword1)}
-                    />
-                  ) : (
-                    <FaEyeSlash
-                      className="absolute top-1/2 right-4 translate-y-[-50%] text-gray-400 text-2xl cursor-pointer"
-                      onClick={() => setShowPassword1(!showPassword1)}
-                    />
-                  )
-                }
-              
+                {showPassword1 ? (
+                  <FaEye
+                    className="absolute top-1/2 right-4 translate-y-[-50%] text-gray-400 text-2xl cursor-pointer"
+                    onClick={() => setShowPassword1(!showPassword1)}
+                  />
+                ) : (
+                  <FaEyeSlash
+                    className="absolute top-1/2 right-4 translate-y-[-50%] text-gray-400 text-2xl cursor-pointer"
+                    onClick={() => setShowPassword1(!showPassword1)}
+                  />
+                )}
               </div>
+              {errors.password && <span className="text-red-500 text-sm">{errors.password}</span>}
             </div>
 
             <div className="pb-2">
@@ -116,21 +147,24 @@ export const Register = () => {
                   value={formData.password_confirmation}
                   className="w-full p-3  rounded-lg border border-gray-200 focus:outline-none focus:border-primary-500 shadow-[0_0_10px_#3802ff33]"
                   placeholder="Confirm your password"
-                  onChange={(e) => setFormData({...formData, password_confirmation: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      password_confirmation: e.target.value,
+                    })
+                  }
                 />
-                {
-                  showPassword2 ? (
-                    <FaEye
-                      className="absolute top-1/2 right-4 translate-y-[-50%] text-gray-400 text-2xl cursor-pointer"
-                      onClick={() => setShowPassword2(!showPassword2)}
-                    />
-                  ) : (
-                    <FaEyeSlash
-                      className="absolute top-1/2 right-4 translate-y-[-50%] text-gray-400 text-2xl cursor-pointer"
-                      onClick={() => setShowPassword2(!showPassword2)}
-                    />
-                  )
-                }
+                {showPassword2 ? (
+                  <FaEye
+                    className="absolute top-1/2 right-4 translate-y-[-50%] text-gray-400 text-2xl cursor-pointer"
+                    onClick={() => setShowPassword2(!showPassword2)}
+                  />
+                ) : (
+                  <FaEyeSlash
+                    className="absolute top-1/2 right-4 translate-y-[-50%] text-gray-400 text-2xl cursor-pointer"
+                    onClick={() => setShowPassword2(!showPassword2)}
+                  />
+                )}
               </div>
             </div>
 

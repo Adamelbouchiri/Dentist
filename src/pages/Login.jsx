@@ -1,13 +1,48 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { FaCheck, FaFacebook } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import AppContext from "../context/AppProvider";
+import axios from "axios";
 
 export const Login = () => {
+  const navigate = useNavigate();
+
+  const { setToken } = useContext(AppContext);
+
   const [checked, setChecked] = useState(false);
+  const [errors, setErrors] = useState([]);
+
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
   const handleCheck = (e) => {
     setChecked(e.target.checked);
   };
+
+  async function handleLogin(e) {
+    e.preventDefault();
+
+    console.log(formData);
+    
+    setErrors({});
+
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/login",
+        formData
+      );
+
+      const data = response.data;
+
+      localStorage.setItem("token", data.token);
+      setToken(data.token);
+      // navigate('/');
+    } catch (error) {
+      setErrors(error.response.data.errors);
+    }
+  }
 
   return (
     <div className="flex justify-center py-10 px-6 lg:px-12 xl:px-40">
@@ -20,14 +55,17 @@ export const Login = () => {
           <h1 className="text-xl md:text-2xl lg:text-4xl">Sign In</h1>
           <p className="text-gray-500 text-sm md:text-base lg:text-lg pt-4 font-semibold">
             Don't have an account ?{" "}
-            <Link to={"/register"} className="text-primary-500 underline font-bold">
+            <Link
+              to={"/register"}
+              className="text-primary-500 underline font-bold"
+            >
               Create now
             </Link>
           </p>
         </div>
 
         <div className="pt-10">
-          <form action="">
+          <form onSubmit={(e) => handleLogin(e)} action="">
             <div className="pb-4">
               <label
                 htmlFor="email"
@@ -36,10 +74,12 @@ export const Login = () => {
                 Email
               </label>
               <input
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 id="email"
                 type="email"
                 className="w-full p-3 mt-4 rounded-lg border border-gray-200 focus:outline-none focus:border-primary-500 shadow-[0_0_10px_#3802ff33]"
                 placeholder="Enter your email address"
+                value={formData.email}
               />
             </div>
 
@@ -51,10 +91,12 @@ export const Login = () => {
                 Password
               </label>
               <input
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 id="password"
                 type="password"
                 className="w-full p-3 mt-4 rounded-lg border border-gray-200 focus:outline-none focus:border-primary-500 shadow-[0_0_10px_#3802ff33]"
                 placeholder="Enter your password"
+                value={formData.password}
               />
             </div>
 

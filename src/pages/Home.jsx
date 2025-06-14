@@ -9,6 +9,7 @@ import { Contact } from "../components/Contact";
 import { Footer } from "../components/Footer";
 
 export const Home = () => {
+
   return (
     <div>
       <Navigation />

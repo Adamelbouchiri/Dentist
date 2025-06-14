@@ -17,7 +17,7 @@ export const Location = () => {
       </div>
 
       <div className="pt-20 flex flex-col-reverse lg:flex-row items-center lg:items-start justify-center gap-6">
-        <div className="rounded-xl overflow-hidden w-full lg:w-[60%] ">
+        <div className="rounded-xl overflow-hidden w-full lg:w-[60%] shadow-md">
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5588.412155722465!2d-7.634610083761219!3d33.608164985823414!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xda7d2607994d58f%3A0x67a1d618e7b0d072!2sMosqu%C3%A9e%20Hassan-II!5e0!3m2!1sfr!2sma!4v1749063889355!5m2!1sfr!2sma"
             width="100%"
