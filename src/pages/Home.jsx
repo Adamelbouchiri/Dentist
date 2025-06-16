@@ -1,12 +1,12 @@
-import { Navigation } from "../components/Navigation";
-import { Hero } from "../components/Hero";
-import { Services } from "../components/Services";
-import { About } from "../components/About";
-import { Doctors } from "../components/Doctors";
-import { Testimonials } from "../components/Testimonials";
-import { Location } from "../components/Location";
-import { Contact } from "../components/Contact";
-import { Footer } from "../components/Footer";
+import { Navigation } from "../components/Home/Navigation";
+import { Hero } from "../components/Home/Hero";
+import { Services } from "../components/Home/Services";
+import { About } from "../components/Home/About";
+import { Doctors } from "../components/Home/Doctors";
+import { Testimonials } from "../components/Home/Testimonials";
+import { Location } from "../components/Home/Location";
+import { Contact } from "../components/Home/Contact";
+import { Footer } from "../components/Home/Footer";
 
 export const Home = () => {
 
