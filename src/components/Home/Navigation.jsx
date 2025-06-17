@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-
+import { useContext, useEffect, useRef, useState } from "react";
 
 // icons
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
@@ -11,8 +10,12 @@ import { FaRegEnvelope } from "react-icons/fa";
 import { TiPlusOutline } from "react-icons/ti";
 import { FiUser } from "react-icons/fi";
 import { IoIosArrowForward } from "react-icons/io";
+import AppContext from "../../context/AppProvider";
+import { Link } from "react-router-dom";
 
 export const Navigation = () => {
+  const { user } = useContext(AppContext);
+
   const [isOpen, setIsOpen] = useState(false);
 
   const [active, setActive] = useState("home");
@@ -46,17 +49,17 @@ export const Navigation = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      if(window.scrollY > 100) {
-        setShadow(true)
+      if (window.scrollY > 100) {
+        setShadow(true);
       } else {
-        setShadow(false)
+        setShadow(false);
       }
-    }
+    };
 
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener("scroll", handleScroll);
 
-    return () => window.removeEventListener('scroll', handleScroll)
-  },[])
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -72,7 +75,11 @@ export const Navigation = () => {
   }, []);
 
   return (
-    <div className={`lg:px-10 2xl:px-32 py-6  bg-white sticky top-0 left-0 z-50 transition-all duration-300 ${shadow ? "shadow-lg" : ""}`}>
+    <div
+      className={`lg:px-10 2xl:px-32 py-6  bg-white sticky top-0 left-0 z-50 transition-all duration-300 ${
+        shadow ? "shadow-lg" : ""
+      }`}
+    >
       <div className="items-center justify-between hidden lg:flex">
         <ul className="flex items-center gap-8 xl:gap-14">
           <li className="font-bold py-2 px-6 rounded-3xl bg-gray-100 cursor-pointer text-sm xl:text-md">
@@ -87,11 +94,7 @@ export const Navigation = () => {
         </ul>
 
         <div className="px-6">
-          <img
-            src="./images/logo.png"
-            alt="dentist"
-            className="min-w-38"
-          />
+          <img src="./images/logo.png" alt="dentist" className="min-w-38" />
         </div>
 
         <ul className="flex items-center gap-8 xl:gap-14">
@@ -101,9 +104,20 @@ export const Navigation = () => {
           <li className="font-bold py-2 px-6 rounded-3xl bg-gray-100 cursor-pointer text-sm xl:text-md">
             <a href="#dentists">Dentists</a>
           </li>
-          <li className="font-bold text-sm py-2 px-6 rounded-3xl gradient bg-gradient-to-r from-[#c7bbff] to-accent-500 cursor-pointer">
-            <a href="#">Book Appointment</a>
-          </li>
+          {user ? (
+            <li className="flex gap-4 items-center font-bold py-2 px-6 rounded-3xl  cursor-pointer">
+              <Link to="path">{user?.name}</Link>
+              <span className="bg-accent-500 inline-block rounded-full p-2">
+                <FiUser className="text-2xl text-zinc-100 " />
+              </span>
+            </li>
+          ) : (
+            <li className="flex items-center font-bold text-sm py-2 px-6 rounded-3xl gradient bg-gradient-to-r from-[#c7bbff] to-accent-500 ">
+              <Link to="/login">Login</Link>
+              <span className="px-1">/</span>
+              <Link to="/register">Register</Link>
+            </li>
+          )}
         </ul>
       </div>
 
@@ -121,7 +135,7 @@ export const Navigation = () => {
       </div>
 
       <div
-      ref={navRef}
+        ref={navRef}
         className={`lg:hidden flex flex-col justify-between fixed top-0 h-full p-6 w-2/3 bg-white z-100 shadow-xl duration-200 transition-all ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
@@ -164,7 +178,7 @@ export const Navigation = () => {
             Book Appointment
           </div>
 
-          <div className="mt-10 flex items-center gap-4 cursor-pointer">
+          <Link to="" className="mt-10 flex items-center gap-4 cursor-pointer">
             <span className="bg-accent-500 inline-block rounded-full p-2">
               <FiUser className="text-3xl text-zinc-100 " />
             </span>
@@ -175,9 +189,9 @@ export const Navigation = () => {
                 <p className="text-sm text-zinc-400">adamsaad@gmail.com</p>
               </div>
 
-              <IoIosArrowForward className="text-2xl text-zinc-400"  />
+              <IoIosArrowForward className="text-2xl text-zinc-400" />
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </div>

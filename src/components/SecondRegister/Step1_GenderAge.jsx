@@ -43,7 +43,7 @@ export default function Step1({ formData, updateData, nextStep }) {
             <div
               key={age}
               onClick={() => updateData({ ageRange: age })}
-              className={`relative flex justify-center items-center w-36 h-36 p-4 rounded-lg border-2 bg-white font-bold text-lg cursor-pointer ${
+              className={`relative flex justify-center items-center lg:w-42 lg:h-42 p-4 rounded-lg border-2 bg-white font-bold text-lg cursor-pointer ${
                 formData.ageRange === age
                   ? "border-primary-500 text-primary-500 checked-box"
                   : "border-gray-200"
