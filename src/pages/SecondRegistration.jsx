@@ -31,12 +31,12 @@ export const SecondRegistration = () => {
 
   return (
     <div className="flex h-screen">
-      <div className="p-10 bg-white w-[25%] border-r border-r-primary-500">
+      <div className="p-6 xl:p-10 bg-white w-[25%] border-r border-r-primary-500">
         <img src="/images/logo.png" alt="register-two" />
         <h1 className="pb-4 pt-10 text-2xl lg:text-3xl xl:text-4xl font-bold leading-10 lg:leading-12">
           Take care of your <br className="hidden lg:block"/> Dents health
         </h1>
-        <p className="text-md text-zinc-400 w-[250px] xl:w-[350px]">
+        <p className="text-md text-zinc-400 ">
           Follow the 3 steps to fill in your inforamtion so that we can offer
           you the best service
         </p>

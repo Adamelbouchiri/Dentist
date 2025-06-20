@@ -25,7 +25,7 @@ export const Login = () => {
     e.preventDefault();
 
     console.log(formData);
-    
+
     setErrors({});
 
     try {
@@ -38,11 +38,19 @@ export const Login = () => {
 
       localStorage.setItem("token", data.token);
       setToken(data.token);
-      // navigate('/');
+      navigate("/");
     } catch (error) {
       setErrors(error.response.data.errors);
     }
   }
+
+  const handleGoogleLogin = () => {
+    window.location.href = "http://127.0.0.1:8000/api/auth/google/redirect";
+  };
+
+  const handleFacebookLogin = () => {
+    window.location.href = "http://localhost:8000/api/auth/facebook/redirect";
+  };
 
   return (
     <div className="flex justify-center py-10 px-6 lg:px-12 xl:px-40">
@@ -74,7 +82,9 @@ export const Login = () => {
                 Email
               </label>
               <input
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 id="email"
                 type="email"
                 className="w-full p-3 mt-4 rounded-lg border border-gray-200 focus:outline-none focus:border-primary-500 shadow-[0_0_10px_#3802ff33]"
@@ -91,7 +101,9 @@ export const Login = () => {
                 Password
               </label>
               <input
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
                 id="password"
                 type="password"
                 className="w-full p-3 mt-4 rounded-lg border border-gray-200 focus:outline-none focus:border-primary-500 shadow-[0_0_10px_#3802ff33]"
@@ -133,7 +145,10 @@ export const Login = () => {
               </span>
             </div>
 
-            <button className="relative w-full mt-6 p-2 rounded-full bg-gray-100 text-zinc-800 font-semibold cursor-pointer">
+            <button
+              onClick={() => handleGoogleLogin()}
+              className="relative w-full mt-6 p-2 rounded-full bg-gray-100 text-zinc-800 font-semibold cursor-pointer"
+            >
               <img
                 src="/images/google.png"
                 alt="google"
@@ -142,7 +157,7 @@ export const Login = () => {
               <span>Continue with Google</span>
             </button>
 
-            <button className="relative w-full mt-6 p-2 rounded-full bg-gray-100 text-zinc-800 font-semibold cursor-pointer">
+            <button onClick={() => handleFacebookLogin()} className="relative w-full mt-6 p-2 rounded-full bg-gray-100 text-zinc-800 font-semibold cursor-pointer">
               <FaFacebook className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-blue-700" />{" "}
               <span>Continue with Facebook</span>
             </button>

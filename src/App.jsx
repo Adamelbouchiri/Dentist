@@ -6,6 +6,8 @@ import { Register } from "./pages/Register";
 import { SecondRegistration } from "./pages/SecondRegistration";
 
 import GuestRoute from "./routes/GuestRoute";
+import { GoogleAuthSuccess } from "./pages/GoogleAuthSuccess";
+import { FacebookAuthSuccess } from "./pages/FacebookAuthSuccess";
 
 function App() {
   return (
@@ -16,8 +18,13 @@ function App() {
         <Route element={<GuestRoute />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/second-Registration" element={<SecondRegistration />}/>
+          <Route path="/google-auth-success" element={<GoogleAuthSuccess />} />
+          <Route
+            path="/facebook-auth-success"
+            element={<FacebookAuthSuccess />}
+          />
         </Route>
+        <Route path="/second-Registration" element={<SecondRegistration />} />
       </Routes>
     </Router>
   );

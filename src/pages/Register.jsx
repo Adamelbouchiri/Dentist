@@ -8,8 +8,7 @@ import axios from "axios";
 import AppContext from "../context/AppProvider";
 
 export const Register = () => {
-
-  const {setToken} = useContext(AppContext)
+  const { setToken } = useContext(AppContext);
 
   const navigate = useNavigate();
 
@@ -36,14 +35,17 @@ export const Register = () => {
 
       const data = response.data;
 
-      localStorage.setItem('token', data.token);
-      setToken(data.token)
-      // navigate('/SecondRegistration');
+      localStorage.setItem("token", data.token);
+      setToken(data.token);
+      navigate("/second-Registration");
     } catch (error) {
       setErrors(error.response.data.errors);
     }
   }
-  
+
+  const handleGoogleLogin = () => {
+    window.location.href = "http://127.0.0.1:8000/api/auth/google/redirect";
+  };
 
   return (
     <div className="flex justify-center py-10 px-6 lg:px-10 xl:px-38">
@@ -78,7 +80,9 @@ export const Register = () => {
                   setFormData({ ...formData, name: e.target.value })
                 }
               />
-              {errors.name && <span className="text-red-500 text-sm">{errors.name}</span>}
+              {errors.name && (
+                <span className="text-red-500 text-sm">{errors.name}</span>
+              )}
             </div>
 
             <div className="pb-2">
@@ -97,7 +101,9 @@ export const Register = () => {
                   setFormData({ ...formData, email: e.target.value })
                 }
               />
-              {errors.email && <span className="text-red-500 text-sm">{errors.email}</span>}
+              {errors.email && (
+                <span className="text-red-500 text-sm">{errors.email}</span>
+              )}
             </div>
 
             <div className="pb-2">
@@ -130,7 +136,9 @@ export const Register = () => {
                   />
                 )}
               </div>
-              {errors.password && <span className="text-red-500 text-sm">{errors.password}</span>}
+              {errors.password && (
+                <span className="text-red-500 text-sm">{errors.password}</span>
+              )}
             </div>
 
             <div className="pb-2">
@@ -180,7 +188,12 @@ export const Register = () => {
             </div>
 
             <div className="flex flex-col lg:flex-row gap-4 xl:gap-8 mt-6">
-              <button className="flex items-center w-full  p-2 rounded-full bg-gray-100 text-zinc-800 font-semibold cursor-pointer">
+              <button
+                onClick={() => {
+                  handleGoogleLogin();
+                }}
+                className="flex items-center w-full  p-2 rounded-full bg-gray-100 text-zinc-800 font-semibold cursor-pointer"
+              >
                 <img
                   src="/images/google.png"
                   alt="google"

@@ -10,16 +10,18 @@ export default function Step2({ formData, updateData, nextStep, prevStep }) {
     "Asthma",
     "Blood Thinners",
     "Allergies",
-    "None of the above",
   ];
 
   const toggleCondition = (condition) => {
     const exists = formData.medicalHistory.includes(condition);
+    
     const updated = exists
-      ? formData.medicalHistory.filter((c) => c !== condition)
-      : [...formData.medicalHistory, condition];
+    ? formData.medicalHistory.filter((c) => c !== condition)
+    : [...formData.medicalHistory, condition];
+    
     updateData({ medicalHistory: updated });
   };
+  console.log(formData);
 
   return (
     <div>

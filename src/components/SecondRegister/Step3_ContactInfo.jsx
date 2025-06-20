@@ -1,3 +1,5 @@
+import axios from "axios";
+import { useContext } from "react";
 import {
   FaArrowLeft,
   FaArrowRight,
@@ -5,10 +7,13 @@ import {
   FaPhoneAlt,
   FaWhatsapp,
 } from "react-icons/fa";
+import AppContext from "../../context/AppProvider";
 
 // Step3_ContactInfo.jsx
 
 export default function Step3({ formData, updateData, prevStep }) {
+  const { token } = useContext(AppContext);
+
   const methods = [
     {
       name: "Phone Call",
@@ -17,6 +22,25 @@ export default function Step3({ formData, updateData, prevStep }) {
     { name: "WhatsApp", icon: <FaWhatsapp className="text-2xl mb-4" /> },
     { name: "Email", icon: <FaRegEnvelope className="text-xl mb-4" /> },
   ];
+
+  async function handleContinue() {
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/second-registration",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = response.data;
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   console.log(formData);
 
@@ -122,7 +146,12 @@ export default function Step3({ formData, updateData, prevStep }) {
         {formData.contactMethod !== "" &&
           (formData.phone !== "" || formData.email !== "") &&
           formData.emergencyContact !== "" && (
-            <button className="text-white border-2 border-primary-500 bg-primary-500 px-4 py-2 rounded-lg flex items-center gap-2 font-bold cursor-pointer">
+            <button
+              onClick={() => {
+                handleContinue();
+              }}
+              className="text-white border-2 border-primary-500 bg-primary-500 px-4 py-2 rounded-lg flex items-center gap-2 font-bold cursor-pointer"
+            >
               Continue <FaArrowRight className="text-md" />
             </button>
           )}

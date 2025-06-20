@@ -19,12 +19,13 @@ export function AppProvider({ children }) {
     const data = response.data;
     setUser(data);
     setLoading(false);
-    console.log(user);
   }
 
   useEffect(() => {
     if (token) {
       getUser();
+    } else {
+      setLoading(false)
     }
   }, [token]);
 

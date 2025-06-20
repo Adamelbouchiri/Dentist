@@ -107,9 +107,18 @@ export const Navigation = () => {
           {user ? (
             <li className="flex gap-4 items-center font-bold py-2 px-6 rounded-3xl  cursor-pointer">
               <Link to="path">{user?.name}</Link>
-              <span className="bg-accent-500 inline-block rounded-full p-2">
-                <FiUser className="text-2xl text-zinc-100 " />
-              </span>
+              {user?.avatar === null ? (
+                <span className="bg-accent-500 inline-block rounded-full p-2">
+                  <FiUser className="text-2xl text-zinc-100 " />
+                </span>
+              ) : (
+                <img
+                  src={user?.avatar}
+                  alt="avatar"
+                  className="w-10 h-10 rounded-full"
+                />
+              )}
+              
             </li>
           ) : (
             <li className="flex items-center font-bold text-sm py-2 px-6 rounded-3xl gradient bg-gradient-to-r from-[#c7bbff] to-accent-500 ">
