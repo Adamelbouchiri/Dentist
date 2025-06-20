@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { ProgressBar } from "../components/SecondRegister/ProgressBar";
-import Step1 from "../components/SecondRegister/Step1_GenderAge";
-import Step2 from "../components/SecondRegister/Step2_HealthStatus";
-import Step3 from "../components/SecondRegister/Step3_ContactInfo";
+import { ProgressBar } from "../../components/SecondRegister/ProgressBar";
+import Step1 from "../../components/SecondRegister/Step1_GenderAge";
+import Step2 from "../../components/SecondRegister/Step2_HealthStatus";
+import Step3 from "../../components/SecondRegister/Step3_ContactInfo";
 
 export const SecondRegistration = () => {
 

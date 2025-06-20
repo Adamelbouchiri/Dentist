@@ -5,7 +5,8 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 import axios from "axios";
-import AppContext from "../context/AppProvider";
+import AppContext from "../../context/AppProvider";
+
 
 export const Register = () => {
   const { setToken } = useContext(AppContext);

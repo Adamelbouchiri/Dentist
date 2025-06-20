@@ -1,7 +1,8 @@
 import { useContext, useEffect } from "react";
 import { BounceLoader } from "react-spinners";
-import AppContext from "../context/AppProvider";
+
 import { useNavigate } from "react-router-dom";
+import AppContext from "../../context/AppProvider";
 
 export const FacebookAuthSuccess = () => {
 

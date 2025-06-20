@@ -1,13 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import { Home } from "./pages/Home";
-import { Login } from "./pages/Login";
-import { Register } from "./pages/Register";
-import { SecondRegistration } from "./pages/SecondRegistration";
+import { Login } from "./pages/Auth/Login";
+import { Register } from "./pages/Auth/Register";
+import { SecondRegistration } from "./pages/Auth/SecondRegistration";
 
 import GuestRoute from "./routes/GuestRoute";
-import { GoogleAuthSuccess } from "./pages/GoogleAuthSuccess";
-import { FacebookAuthSuccess } from "./pages/FacebookAuthSuccess";
+import { GoogleAuthSuccess } from "./pages/Auth/GoogleAuthSuccess";
+import { FacebookAuthSuccess } from "./pages/Auth/FacebookAuthSuccess";
+import {ForgotPassword} from "./pages/Auth/ForgotPassword";
 
 function App() {
   return (
@@ -24,7 +25,8 @@ function App() {
             element={<FacebookAuthSuccess />}
           />
         </Route>
-        <Route path="/second-Registration" element={<SecondRegistration />} />
+        <Route path="/second-Registration" element={<SecondRegistration />} />\
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </Router>
   );

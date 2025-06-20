@@ -1,8 +1,9 @@
 import { useContext, useState } from "react";
 import { FaCheck, FaFacebook } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import AppContext from "../context/AppProvider";
+
 import axios from "axios";
+import AppContext from "../../context/AppProvider";
 
 export const Login = () => {
   const navigate = useNavigate();
