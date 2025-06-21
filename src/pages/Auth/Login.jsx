@@ -54,8 +54,8 @@ export const Login = () => {
   };
 
   return (
-    <div className="flex justify-center py-10 px-6 lg:px-12 xl:px-40">
-      <div className="w-full lg:w-1/2 p-4 lg:pe-12 xl:pe-20">
+    <div className="flex justify-center py-10 px-4 lg:px-12 xl:px-40">
+      <div className="w-full lg:w-1/2 p-2 lg:pe-12 xl:pe-20">
         <div className="flex justify-center">
           <img src="/images/logo.png" alt="login" />
         </div>
@@ -130,9 +130,9 @@ export const Login = () => {
                 <span className="ml-2 text-gray-700">Save account</span>
               </label>
 
-              <a href="#" className="text-primary-500 underline font-bold">
+              <Link to="/forgot-password" className="text-primary-500 text-sm md:text-md underline font-bold">
                 Forgot password ?
-              </a>
+              </Link>
             </div>
 
             <button className="w-full mt-6 p-2 rounded-full bg-primary-500 text-white font-semibold cursor-pointer">

@@ -49,8 +49,8 @@ export const Register = () => {
   };
 
   return (
-    <div className="flex justify-center py-10 px-6 lg:px-10 xl:px-38">
-      <div className="w-full lg:w-1/2 p-4 lg:pe-12 xl:pe-20">
+    <div className="flex justify-center py-10 px-4 lg:px-10 xl:px-38">
+      <div className="w-full lg:w-1/2 p-2 lg:pe-12 xl:pe-20">
         <div className="flex justify-center">
           <img src="/images/logo.png" alt="login" />
         </div>

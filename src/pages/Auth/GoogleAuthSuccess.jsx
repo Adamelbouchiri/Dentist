@@ -1,5 +1,5 @@
 import { useContext, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { BounceLoader } from "react-spinners";
 import AppContext from "../../context/AppProvider";
 
@@ -8,15 +8,17 @@ export const GoogleAuthSuccess = () => {
   
   const {setToken} = useContext(AppContext);
 
+  const [searchParams] = useSearchParams();
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = new URLSearchParams(window.location.search).get("token");
+    const token = searchParams.get("token");
 
     if (token) {
       localStorage.setItem("token", token);
       setToken(token);
-      navigate("/"); // Redirect to home page instead of /dashboard
+      navigate("/");
     } else {
       navigate("/login");
     }
