@@ -12,6 +12,7 @@ export const Login = () => {
 
   const [checked, setChecked] = useState(false);
   const [errors, setErrors] = useState([]);
+  const [generalError, setGeneralError] = useState("");
 
   const [formData, setFormData] = useState({
     email: "",
@@ -41,16 +42,22 @@ export const Login = () => {
       setToken(data.token);
       navigate("/");
     } catch (error) {
-      setErrors(error.response.data.errors);
+      if (error.response?.data?.errors) {
+        setErrors(error.response.data.errors);
+      } else if (error.response?.data?.message) {
+        setGeneralError(error.response.data.message);
+      }
     }
   }
+
+  console.log(errors);
 
   const handleGoogleLogin = () => {
     window.location.href = "http://127.0.0.1:8000/api/auth/google/redirect";
   };
 
   const handleFacebookLogin = () => {
-    window.location.href = "http://localhost:8000/api/auth/facebook/redirect";
+    window.location.href = "http://127.0.0.1:8000/api/auth/facebook/redirect";
   };
 
   return (
@@ -92,6 +99,14 @@ export const Login = () => {
                 placeholder="Enter your email address"
                 value={formData.email}
               />
+              {errors?.email && (
+                <span className="text-red-500 text-sm">{errors.email}</span>
+              )}
+              {
+                generalError && (
+                  <span className="text-red-500 text-sm">{generalError}</span>
+                )
+              }
             </div>
 
             <div className="pb-4">
@@ -111,6 +126,9 @@ export const Login = () => {
                 placeholder="Enter your password"
                 value={formData.password}
               />
+              {errors?.password && (
+                <span className="text-red-500 text-sm">{errors.password}</span>
+              )}
             </div>
 
             <div className="flex justify-between">
@@ -130,7 +148,10 @@ export const Login = () => {
                 <span className="ml-2 text-gray-700">Save account</span>
               </label>
 
-              <Link to="/forgot-password" className="text-primary-500 text-sm md:text-md underline font-bold">
+              <Link
+                to="/forgot-password"
+                className="text-primary-500 text-sm md:text-md underline font-bold"
+              >
                 Forgot password ?
               </Link>
             </div>
@@ -158,7 +179,11 @@ export const Login = () => {
               <span>Continue with Google</span>
             </button>
 
-            <button onClick={() => handleFacebookLogin()} className="relative w-full mt-6 p-2 rounded-full bg-gray-100 text-zinc-800 font-semibold cursor-pointer">
+            <button
+              type="none"
+              onClick={() => handleFacebookLogin()}
+              className="relative w-full mt-6 p-2 rounded-full bg-gray-100 text-zinc-800 font-semibold cursor-pointer"
+            >
               <FaFacebook className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-blue-700" />{" "}
               <span>Continue with Facebook</span>
             </button>

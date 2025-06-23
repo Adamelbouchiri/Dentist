@@ -8,7 +8,7 @@ import { SecondRegistration } from "./pages/Auth/SecondRegistration";
 import GuestRoute from "./routes/GuestRoute";
 import { GoogleAuthSuccess } from "./pages/Auth/GoogleAuthSuccess";
 import { FacebookAuthSuccess } from "./pages/Auth/FacebookAuthSuccess";
-import {ForgotPassword} from "./pages/Auth/ForgotPassword";
+import { ForgotPassword } from "./pages/Auth/ForgotPassword";
 import { ResetPassword } from "./pages/Auth/ResetPassword";
 
 function App() {
@@ -25,10 +25,11 @@ function App() {
             path="/facebook-auth-success"
             element={<FacebookAuthSuccess />}
           />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Route>
+
         <Route path="/second-Registration" element={<SecondRegistration />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </Router>
   );

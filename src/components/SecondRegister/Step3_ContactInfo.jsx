@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import {
   FaArrowLeft,
   FaArrowRight,
@@ -8,11 +8,16 @@ import {
   FaWhatsapp,
 } from "react-icons/fa";
 import AppContext from "../../context/AppProvider";
+import { useNavigate } from "react-router-dom";
 
 // Step3_ContactInfo.jsx
 
 export default function Step3({ formData, updateData, prevStep }) {
+  const navigate = useNavigate();
+
   const { token } = useContext(AppContext);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const methods = [
     {
@@ -24,6 +29,7 @@ export default function Step3({ formData, updateData, prevStep }) {
   ];
 
   async function handleContinue() {
+    setIsLoading(true);
     try {
       const response = await axios.post(
         "http://127.0.0.1:8000/api/second-registration",
@@ -39,6 +45,9 @@ export default function Step3({ formData, updateData, prevStep }) {
       console.log(data);
     } catch (error) {
       console.error(error);
+    } finally {
+      navigate("/");
+      setIsLoading(false);
     }
   }
 
@@ -147,10 +156,11 @@ export default function Step3({ formData, updateData, prevStep }) {
           (formData.phone !== "" || formData.email !== "") &&
           formData.emergencyContact !== "" && (
             <button
+              disabled={isLoading}
               onClick={() => {
                 handleContinue();
               }}
-              className="text-white border-2 border-primary-500 bg-primary-500 px-4 py-2 rounded-lg flex items-center gap-2 font-bold cursor-pointer"
+              className={`text-white border-2 border-primary-500 bg-primary-500 px-4 py-2 rounded-lg flex items-center gap-2 font-bold ${isLoading ? "cursor-not-allowed" : "cursor-pointer"}`}
             >
               Continue <FaArrowRight className="text-md" />
             </button>

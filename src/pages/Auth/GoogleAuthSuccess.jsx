@@ -18,7 +18,7 @@ export const GoogleAuthSuccess = () => {
     if (token) {
       localStorage.setItem("token", token);
       setToken(token);
-      navigate("/");
+      navigate("/second-registration");
     } else {
       navigate("/login");
     }
