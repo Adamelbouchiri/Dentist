@@ -118,7 +118,6 @@ export const Navigation = () => {
                   className="w-10 h-10 rounded-full"
                 />
               )}
-              
             </li>
           ) : (
             <li className="flex items-center font-bold text-sm py-2 px-6 rounded-3xl gradient bg-gradient-to-r from-[#c7bbff] to-accent-500 ">
@@ -187,20 +186,40 @@ export const Navigation = () => {
             Book Appointment
           </div>
 
-          <Link to="" className="mt-10 flex items-center gap-4 cursor-pointer">
-            <span className="bg-accent-500 inline-block rounded-full p-2">
-              <FiUser className="text-3xl text-zinc-100 " />
-            </span>
+          {user ? (
+            <Link
+              to=""
+              className="mt-10 flex items-center gap-4 cursor-pointer"
+            >
+              {user?.avatar === null ? (
+                <span className="bg-accent-500 inline-block rounded-full p-2">
+                  <FiUser className="text-2xl text-zinc-100 " />
+                </span>
+              ) : (
+                <img
+                  src={user?.avatar}
+                  alt="avatar"
+                  className="w-10 h-10 rounded-full"
+                />
+              )}
 
-            <div className="flex justify-between items-center w-full">
-              <div className="">
-                <h3 className="font-bold text-lg">Adam saad</h3>
-                <p className="text-sm text-zinc-400">adamsaad@gmail.com</p>
+              <div className="flex justify-between items-center w-full">
+                <div className="">
+                  <h3 className="font-bold text-lg">{user?.name}</h3>
+                  <p className="text-sm text-zinc-400">
+                    {user.facebook_id ? "Facebook" : user?.email}
+                  </p>
+                </div>
+
+                <IoIosArrowForward className="text-2xl text-zinc-400" />
               </div>
-
-              <IoIosArrowForward className="text-2xl text-zinc-400" />
+            </Link>
+          ) : (
+            <div className="mt-4 flex items-center gap-2">
+              <Link to="/login" className="font-bold p-2 text-center rounded-3xl gradient bg-gradient-to-r from-[#c7bbff] to-accent-500 flex-1">Login</Link>
+              <Link to="/register" className="font-bold p-2 text-center rounded-3xl gradient bg-gradient-to-r from-[#c7bbff] to-accent-500 flex-1">Register</Link>
             </div>
-          </Link>
+          )}
         </div>
       </div>
     </div>

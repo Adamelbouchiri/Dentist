@@ -24,7 +24,7 @@ export const Doctors = () => {
 
           <div className="absolute bottom-5 right-4 left-4 bg-white px-4 py-6 rounded-2xl">
             <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold">Dr. John Doe</h1>
+              <h1 className="text-lg md:text-2xl font-bold">Dr. Tayler Smith</h1>
               <a href="tel:+212767759400" className="py-0.5 px-6 gradient-primary rounded-full text-white text-sm block">Call Now</a>
             </div>
             <span className="text-sm text-gray-500">Dentist Doctor</span>
@@ -43,7 +43,7 @@ export const Doctors = () => {
 
           <div className="absolute bottom-5 right-4 left-4 bg-white px-4 py-6 rounded-2xl">
             <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold">Dr. John Doe</h1>
+              <h1 className="text-lg md:text-2xl font-bold">Dr. Cris waxon</h1>
               <a href="tel:+212767759400" className="py-0.5 px-6 gradient-primary rounded-full text-white text-sm block">Call Now</a>
             </div>
             <span className="text-sm text-gray-500">Dentist Doctor</span>
@@ -62,7 +62,7 @@ export const Doctors = () => {
 
           <div className="absolute bottom-5 right-4 left-4 bg-white px-4 py-6 rounded-2xl">
             <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold">Dr. John Doe</h1>
+              <h1 className="text-lg md:text-2xl font-bold">Dr. John Doe</h1>
               <a href="tel:+212767759400" className="py-0.5 px-6 gradient-primary rounded-full text-white text-sm block">Call Now</a>
             </div>
             <span className="text-sm text-gray-500">Dentist Doctor</span>

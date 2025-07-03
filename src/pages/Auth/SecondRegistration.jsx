@@ -45,13 +45,13 @@ export const SecondRegistration = () => {
   }
 
   return (
-    <div className="flex h-screen">
-      <div className="p-6 xl:p-10 bg-white w-[25%] border-r border-r-primary-500">
+    <div className="flex flex-col md:flex-row h-screen">
+      <div className="p-6 xl:p-10 flex flex-col items-center bg-white md:w-[25%] border-r border-r-primary-500">
         <img src="/images/logo.png" alt="register-two" />
-        <h1 className="pb-4 pt-10 text-2xl lg:text-3xl xl:text-4xl font-bold leading-10 lg:leading-12">
+        <h1 className="pb-4 pt-10 text-2xl lg:text-3xl xl:text-4xl font-bold leading-10 lg:leading-12 text-center md:text-start">
           Take care of your <br className="hidden lg:block" /> Dents health
         </h1>
-        <p className="text-md text-zinc-400 ">
+        <p className="text-md text-zinc-400 text-center md:text-start">
           Follow the 3 steps to fill in your inforamtion so that we can offer
           you the best service
         </p>
@@ -59,7 +59,7 @@ export const SecondRegistration = () => {
         <ProgressBar currentStep={step} />
       </div>
 
-      <div className="flex-1 p-14 bg-[#f9f4f4] pt-24">
+      <div className="md:flex-1 p-8 lg:p-14 bg-[#f9f4f4] pt-24">
         {step === 1 && (
           <Step1
             formData={formData}

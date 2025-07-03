@@ -1,6 +1,5 @@
 import { IoMaleOutline } from "react-icons/io5";
 import { IoFemaleOutline } from "react-icons/io5";
-import { BsArrowRight } from "react-icons/bs";
 import { FaArrowRight } from "react-icons/fa";
 
 // Step1_GenderAge.jsx
@@ -9,7 +8,7 @@ export default function Step1({ formData, updateData, nextStep }) {
   const Ages = ["Under 18", "18 - 30", "30 - 40", "40 - 50", "50 - 60", "Above 60"];
 
   return (
-    <div className="">
+    <div className="flex flex-col items-center md:items-start">
       <h2 className="text-2xl font-bold mb-8">What your gender ?</h2>
       <div className="flex gap-4 mb-16">
         {["Male", "Female"].map((gender) => (
@@ -37,13 +36,13 @@ export default function Step1({ formData, updateData, nextStep }) {
       </div>
 
       <h2 className="text-2xl font-bold mb-8">What is your age ?</h2>
-      <div className="flex gap-6 mb-8 flex-wrap">
+      <div className="flex justify-center md:justify-start gap-6 mb-8 flex-wrap">
         {Ages.map(
           (age) => (
             <div
               key={age}
               onClick={() => updateData({ ageRange: age })}
-              className={`relative flex justify-center items-center lg:w-42 lg:h-42 p-4 rounded-lg border-2 bg-white font-bold text-lg cursor-pointer ${
+              className={`relative flex justify-center items-center w-32 h-32 lg:w-42 lg:h-42 p-4 rounded-lg border-2 bg-white font-bold text-lg cursor-pointer ${
                 formData.ageRange === age
                   ? "border-primary-500 text-primary-500 checked-box"
                   : "border-gray-200"
