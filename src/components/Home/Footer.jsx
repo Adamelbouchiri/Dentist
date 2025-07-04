@@ -1,6 +1,7 @@
 // Icons
 import { FaXTwitter } from "react-icons/fa6";
 import { FaInstagram, FaLinkedin } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export const Footer = () => {
   return (
@@ -58,9 +59,9 @@ export const Footer = () => {
               🕓 Hours: Mon-Sat: 9AM - 6PM
             </li>
           </ul>
-          <button className="font-bold py-2 px-6 rounded-3xl gradient bg-gradient-to-b from-primary-500 to-accent-500 border border-white cursor-pointer">
+          <Link to="/appointments" className="font-bold py-2 px-6 rounded-3xl gradient bg-gradient-to-b from-primary-500 to-accent-500 border border-white cursor-pointer">
             Book an Appointment
-          </button>
+          </Link>
         </div>
       </div>
     </div>

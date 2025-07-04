@@ -55,7 +55,7 @@ export default function Step1({ formData, updateData, nextStep }) {
       </div>
 
       {formData.gender && formData.ageRange && (
-        <div className="flex justify-end mt-10">
+        <div className="flex self-end mt-10">
           <button
             onClick={nextStep}
             className="bg-primary-500 text-white px-6 py-2 text-lg rounded-lg cursor-pointer flex items-center gap-2"
