@@ -1,14 +1,16 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export const Hero = () => {
   return (
     <div id="home" className="">
-      <div className="hero h-[50vh]  lg:h-[85vh] rounded-2xl relative">
+      <div className="hero h-[50vh] lg:h-[85vh] rounded-2xl relative">
         <div className="flex justify-end relative">
           <img
             src="/images/hero-icons.png"
             alt="social"
             className="mt-10 me-8"
+            loading="lazy"
           />
         </div>
 
@@ -26,11 +28,11 @@ export const Hero = () => {
         </div>
 
         <div className="flex justify-center relative pt-6 lg:pt-10">
-          <button className="text-white border border-white px-4 py-2 rounded-full gradient-primary font-bold cursor-pointer">Book an Appointment</button>
+          <Link to="/appointments" className="text-white border border-white px-4 py-2 rounded-full gradient-primary font-bold cursor-pointer">Book an Appointment</Link>
         </div>
 
         <div className="absolute hidden lg:block bottom-10 left-10">
-          <img src="/images/hero-items.png" alt="items" />
+          <img src="/images/hero-items.png" alt="items" loading="lazy"/>
         </div>
       </div>
     </div>

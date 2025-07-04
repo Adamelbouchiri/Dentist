@@ -20,7 +20,7 @@ export const Doctors = () => {
 
       <div className="flex flex-col items-center md:flex-row justify-center flex-wrap lg:flex-nowrap gap-4 xl:gap-16 pt-10">
         <div className="w-[350px] lg:w-[450px] rounded-xl overflow-hidden relative">
-          <img src="/images/doctor-2.jpg" alt="doctor" className="w-full" />
+          <img src="/images/doctor-2.jpg" alt="doctor" className="w-full" loading="lazy"/>
 
           <div className="absolute bottom-5 right-4 left-4 bg-white px-4 py-6 rounded-2xl">
             <div className="flex justify-between items-center">
@@ -39,7 +39,7 @@ export const Doctors = () => {
         </div>
 
         <div className="w-[350px] lg:w-[450px] rounded-xl overflow-hidden relative">
-          <img src="/images/doctor-1.jpg" alt="doctor" className="w-full" />
+          <img src="/images/doctor-1.jpg" alt="doctor" className="w-full" loading="lazy"/>
 
           <div className="absolute bottom-5 right-4 left-4 bg-white px-4 py-6 rounded-2xl">
             <div className="flex justify-between items-center">
@@ -58,7 +58,7 @@ export const Doctors = () => {
         </div>
 
         <div className="w-[350px] lg:w-[450px] rounded-xl overflow-hidden relative">
-          <img src="/images/doctor-3.jpg" alt="doctor" className="w-full" />
+          <img src="/images/doctor-3.jpg" alt="doctor" className="w-full" loading="lazy"/>
 
           <div className="absolute bottom-5 right-4 left-4 bg-white px-4 py-6 rounded-2xl">
             <div className="flex justify-between items-center">

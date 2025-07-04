@@ -61,14 +61,14 @@ export default function Step3({ formData, updateData, prevStep }) {
           <div
             key={method.name}
             onClick={() => updateData({ contactMethod: method.name })}
-            className={`relative flex flex-col justify-center items-center w-36 h-36 p-4 rounded-lg border-2 bg-white font-bold text-lg cursor-pointer ${
+            className={`relative flex flex-col justify-center items-center w-32 h-32 md:w-36 md:h-36 p-4 rounded-lg border-2 bg-white font-bold text-lg cursor-pointer ${
               formData.contactMethod === method.name
                 ? "border-primary-500 text-primary-500 checked-box"
                 : "border-gray-200"
             }`}
           >
             {method.icon}
-            {method.name}
+            <span className="text-sm md:text-base">{method.name}</span>
           </div>
         ))}
       </div>
@@ -145,7 +145,7 @@ export default function Step3({ formData, updateData, prevStep }) {
         />
       </div>
 
-      <div className="flex justify-end gap-4">
+      <div className="flex justify-center md:justify-end gap-4">
         <button
           onClick={prevStep}
           className="text-primary-500 border-2 border-primary-500 bg-white px-4 py-2 rounded-lg flex items-center gap-2 font-bold cursor-pointer"

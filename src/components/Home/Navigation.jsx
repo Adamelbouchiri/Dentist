@@ -11,7 +11,7 @@ import { TiPlusOutline } from "react-icons/ti";
 import { FiUser } from "react-icons/fi";
 import { IoIosArrowForward } from "react-icons/io";
 import AppContext from "../../context/AppProvider";
-import { Link } from "react-router-dom";
+import { Link, Links } from "react-router-dom";
 
 export const Navigation = () => {
   const { user } = useContext(AppContext);
@@ -181,10 +181,10 @@ export const Navigation = () => {
           </ul>
         </div>
 
-        <div className=" w-full">
-          <div className="cursor-pointer font-bold py-3 px-6 rounded-3xl gradient bg-gradient-to-r from-[#c7bbff] to-accent-500">
+        <div className="w-full">
+          <Link to="/appointments" className=" block cursor-pointer font-bold py-3 px-6 rounded-3xl gradient bg-gradient-to-r from-[#c7bbff] to-accent-500">
             Book Appointment
-          </div>
+          </Link>
 
           {user ? (
             <Link

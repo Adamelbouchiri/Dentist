@@ -113,7 +113,7 @@ export default function Step2({ formData, updateData, nextStep, prevStep }) {
         />
       </div>
 
-      <div className="flex justify-end gap-4">
+      <div className="flex justify-center md:justify-end gap-4">
         <button
           onClick={prevStep}
           className="text-primary-500 border-2 border-primary-500 bg-white px-4 py-2 rounded-lg flex items-center gap-2 font-bold cursor-pointer"

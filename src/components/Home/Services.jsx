@@ -56,7 +56,7 @@ export const Services = () => {
                 : "bg-white border p-10"
             } relative shadow border-zinc-200 flex flex-col items-center rounded-xl`}
           >
-            <img src={service.image} alt="service" />
+            <img src={service.image} alt="service" loading="lazy"/>
             <h1 className="text-2xl md:text-3xl font-bold py-4">
               {service.title}
             </h1>

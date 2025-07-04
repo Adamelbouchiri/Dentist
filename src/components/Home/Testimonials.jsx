@@ -62,7 +62,7 @@ export const Testimonials = () => {
                 i === activeIndex ? "bg-black text-white" : "bg-gray-200 text-black"
               } rounded-xl flex flex-col justify-between h-full shadow-lg overflow-hidden relative transition-all duration-300`}
             >
-              <img src={t.logo} alt="logo" className="w-40 lg:w-50 py-6 lg:py-8 mx-auto" />
+              <img src={t.logo} alt="logo" className="w-40 lg:w-50 py-6 lg:py-8 mx-auto" loading="lazy"/>
               <div className="text-md lg:text-lg mb-6 text-start font-light px-6">
                 {t.quote.split("\n").map((line, index) => (
                   <p key={index}>

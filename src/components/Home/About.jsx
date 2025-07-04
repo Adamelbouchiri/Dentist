@@ -18,6 +18,7 @@ export const About = () => {
           src="/images/about.jpg"
           alt="about"
           className="hidden lg:block lg:w-[600px] rounded-xl"
+          loading="lazy"
         />
 
         <div className="flex-1 flex flex-col gap-3">
