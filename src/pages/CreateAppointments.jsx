@@ -202,18 +202,7 @@ export const CreateAppointments = () => {
                 </ul>
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Contact email
-              </label>
-              <input
-                type="email"
-                placeholder="Enter your email for appointment confirmation"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-              />
-            </div>
+            
             {/* Total and Pay Button */}
             <div className="border-t border-gray-200 pt-4">
               <div className="flex justify-between items-center mb-2">
@@ -273,7 +262,7 @@ export const CreateAppointments = () => {
               {/* Category Selection */}
               <div className="mb-4 p-6 rounded-xl bg-white border-2 border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-400 mb-4 border-b border-gray-200 pb-2">
-                  Choose category
+                  Choose service
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {categories.map((category) => {
@@ -394,7 +383,7 @@ export const CreateAppointments = () => {
             </div>
           </div>
           {/* Right Side - Payment */}
-          <div className="bg-white rounded-lg p-6 h-fit">
+          <div className="bg-white shadow-lg rounded-lg p-6 h-fit">
             <h3 className="text-lg font-semibold text-zinc-800 mb-6">
               Payment method
             </h3>

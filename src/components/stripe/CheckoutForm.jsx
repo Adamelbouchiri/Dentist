@@ -1,14 +1,20 @@
 // src/components/stripe/CheckoutForm.jsx
-import React from "react";
+import { useState } from "react";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import axios from "axios";
+import { flash } from "../../utils/flash";
+import { PuffLoader } from "react-spinners";
 
 const CheckoutForm = ({ amount, email, onSuccess, serviceName }) => {
   const stripe = useStripe();
   const elements = useElements();
 
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setLoading(true);
 
     if (!stripe || !elements) return;
 
@@ -32,16 +38,25 @@ const CheckoutForm = ({ amount, email, onSuccess, serviceName }) => {
       });
 
       if (result.error) {
-        alert(result.error.message);
+        // alert(result.error.message);
+        flash.show(result.error.message, "error", 3000);
       } else {
         if (result.paymentIntent.status === "succeeded") {
-          alert("Payment successful");
+          // alert("Payment successful");
           onSuccess(result.paymentIntent); // pass to parent
+          flash.show("Payment successful", "success", 3000);
         }
       }
     } catch (error) {
       console.error("Payment error:", error);
-      alert("An error occurred while processing the payment.");
+      // alert("An error occurred while processing the payment.");
+      flash.show(
+        "An error occurred while processing the payment.",
+        "error",
+        3000
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -67,9 +82,11 @@ const CheckoutForm = ({ amount, email, onSuccess, serviceName }) => {
         </div>
         <button
           type="submit"
-          className="w-full bg-primary-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-600 cursor-pointer transition duration-300 ease-in-out"
+          disabled={loading}
+          className={`w-full bg-primary-500 text-white flex items-center justify-center py-3 px-4 rounded-lg font-semibold hover:bg-blue-600 transition duration-300 ease-in-out ${loading ? "cursor-not-allowed" : "cursor-pointer"
+            }`}
         >
-          Pay ${amount}
+          {loading ? <PuffLoader size={30} color="#fff" className="p-0 m-0" /> : `Pay $${amount}`}
         </button>
       </div>
     </form>

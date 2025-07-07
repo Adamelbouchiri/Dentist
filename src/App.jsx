@@ -14,33 +14,40 @@ import { FacebookAuthSuccess } from "./pages/Auth/FacebookAuthSuccess";
 import { ForgotPassword } from "./pages/Auth/ForgotPassword";
 import { ResetPassword } from "./pages/Auth/ResetPassword";
 
-import {GuestRoute} from "./routes/GuestRoute";
-import {AuthRoute} from "./routes/AuthRoute";
+import { GuestRoute } from "./routes/GuestRoute";
+import { AuthRoute } from "./routes/AuthRoute";
+import FlashMessage from "./components/FlashMessage";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
+    <>
+      <FlashMessage />
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
 
-        <Route element={<AuthRoute/>}>
-          <Route path="/appointments" element={<CreateAppointments />}/>
-        </Route>
+          <Route element={<AuthRoute />}>
+            <Route path="/appointments" element={<CreateAppointments />} />
+          </Route>
 
-        <Route element={<GuestRoute />}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/google-auth-success" element={<GoogleAuthSuccess />} />
-          <Route
-            path="/facebook-auth-success"
-            element={<FacebookAuthSuccess />}
-          />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-        </Route>
-        <Route path="/second-Registration" element={<SecondRegistration />} />
-      </Routes>
-    </Router>
+          <Route element={<GuestRoute />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/google-auth-success"
+              element={<GoogleAuthSuccess />}
+            />
+            <Route
+              path="/facebook-auth-success"
+              element={<FacebookAuthSuccess />}
+            />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+          </Route>
+          <Route path="/second-Registration" element={<SecondRegistration />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
 

@@ -20,8 +20,8 @@ export const DateTimePicker = () => {
   const [currentWeekStart, setCurrentWeekStart] = useState(
     getCurrentWeekStart()
   );
-  const [isBooking, setIsBooking] = useState(false);
-  const [bookingStatus, setBookingStatus] = useState(null); // 'success', 'error', or null
+  // const [isBooking, setIsBooking] = useState(false);
+  // const [bookingStatus, setBookingStatus] = useState(null); // 'success', 'error', or null
 
   const timeSlots = ["9:30", "10:00", "10:30", "11:00", "11:30", "12:00", "14:00", "14:30", "15:00", "15:30", "16:00"];
   const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -103,51 +103,51 @@ export const DateTimePicker = () => {
     setSelectedDate(date);
   };
 
-  const handleBooking = async () => {
-    if (!selectedDate || !selectedTime) return;
+  // const handleBooking = async () => {
+  //   if (!selectedDate || !selectedTime) return;
 
-    setIsBooking(true);
-    setBookingStatus(null);
+  //   setIsBooking(true);
+  //   setBookingStatus(null);
 
-    try {
-      const bookingData = {
-        date: selectedDate.toISOString().split("T")[0],
-        time: selectedTime,
-        timestamp: new Date().toISOString(),
-        service: "appointment",
-      };
+  //   try {
+  //     const bookingData = {
+  //       date: selectedDate.toISOString().split("T")[0],
+  //       time: selectedTime,
+  //       timestamp: new Date().toISOString(),
+  //       service: "appointment",
+  //     };
 
-      const response = await fetch("/api/bookings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(bookingData),
-      });
+  //     const response = await fetch("/api/bookings", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(bookingData),
+  //     });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! status: ${response.status}`);
+  //     }
 
-      const result = await response.json();
-      console.log("Booking successful:", result);
+  //     const result = await response.json();
+  //     console.log("Booking successful:", result);
 
-      setBookingStatus("success");
+  //     setBookingStatus("success");
 
-      setTimeout(() => {
-        setBookingStatus(null);
-      }, 3000);
-    } catch (error) {
-      console.error("Booking failed:", error);
-      setBookingStatus("error");
+  //     setTimeout(() => {
+  //       setBookingStatus(null);
+  //     }, 3000);
+  //   } catch (error) {
+  //     console.error("Booking failed:", error);
+  //     setBookingStatus("error");
 
-      setTimeout(() => {
-        setBookingStatus(null);
-      }, 3000);
-    } finally {
-      setIsBooking(false);
-    }
-  };
+  //     setTimeout(() => {
+  //       setBookingStatus(null);
+  //     }, 3000);
+  //   } finally {
+  //     setIsBooking(false);
+  //   }
+  // };
 
   const getBookingButtonText = () => {
     if (isBooking) return "Booking...";
@@ -157,7 +157,7 @@ export const DateTimePicker = () => {
   };
 
   return (
-    <div className="w-full  bg-white rounded-lg shadow-lg border border-gray-200">
+    <div className="w-full bg-white rounded-lg border border-gray-200">
       {/* Header */}
       <div className="p-6 pb-4 border-b border-gray-100">
         <div className="flex items-center justify-between">
@@ -249,7 +249,7 @@ export const DateTimePicker = () => {
             <span className="text-sm font-medium text-gray-700">
               {formatDate(selectedDate)} | {selectedTime}
             </span>
-            <button
+            {/* <button
               className={`px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 cursor-pointer ${
                 bookingStatus === "success"
                   ? "bg-green-600 hover:bg-green-700 text-white"
@@ -286,11 +286,11 @@ export const DateTimePicker = () => {
                 </svg>
               )}
               {getBookingButtonText()}
-            </button>
+            </button> */}
           </div>
         )}
 
-        {/* Status Messages */}
+        {/* Status Messages
         {bookingStatus === "success" && (
           <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-sm text-green-800">
@@ -305,7 +305,7 @@ export const DateTimePicker = () => {
               Booking failed. Please try again.
             </p>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

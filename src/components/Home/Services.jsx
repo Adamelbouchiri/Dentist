@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export const Services = () => {
   const services = [
@@ -63,9 +64,9 @@ export const Services = () => {
 
             <p className="w-72 text-center pb-4">{service.desc}</p>
 
-            <button className="text-sm cursor-pointer text-white border border-white px-6 py-1 rounded-full gradient-primary font-bold ">
+            <Link to="/appointments" className="text-sm cursor-pointer text-white border border-white px-6 py-1 rounded-full gradient-primary font-bold ">
               Schedule an appointment
-            </button>
+            </Link>
           </div>
         ))}
       </div>
