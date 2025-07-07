@@ -10,6 +10,9 @@ import {
 } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
+import StripeWrapper from "../components/stripe/StripeWrapper";
+import CheckoutForm from "../components/stripe/CheckoutForm";
+
 export const CreateAppointments = () => {
   const [selectedCategory, setSelectedCategory] = useState("General Checkups");
   const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -18,10 +21,6 @@ export const CreateAppointments = () => {
   const [currentDoctorSlide, setCurrentDoctorSlide] = useState(0);
   const [formData, setFormData] = useState({
     email: "",
-    cardNumber: "",
-    expirationDate: "",
-    securityCode: "",
-    cardholderName: "",
     paypalEmail: "",
   });
 
@@ -122,92 +121,17 @@ export const CreateAppointments = () => {
     switch (selectedPaymentMethod) {
       case "Pay by Card":
         return (
-          <div className="space-y-4">
-            {/* Email Address */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email address
-              </label>
-              <input
-                type="email"
-                placeholder="Enter your email address"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-              />
-            </div>
-            {/* Card Number */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Card number
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="1234 5678 9012 3456"
-                  value={formData.cardNumber}
-                  onChange={(e) =>
-                    handleInputChange("cardNumber", e.target.value)
-                  }
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none pr-20"
-                />
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex gap-1">
-                  <div className="w-8 h-5 flex items-center justify-center font-bold">
-                    <img src="/images/visa.png" alt="visa" className="w-full"/>
-                  </div>
-                  <div className="w-8 h-5 flex items-center justify-center font-bold">
-                    <img src="/images/masterCard.png" alt="mastercard" className="w-full" />
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* Expiration Date and Security Code */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Expiration date
-                </label>
-                <input
-                  type="text"
-                  placeholder="MM / YYYY"
-                  value={formData.expirationDate}
-                  onChange={(e) =>
-                    handleInputChange("expirationDate", e.target.value)
-                  }
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Security code
-                </label>
-                <input
-                  type="text"
-                  placeholder="CVC"
-                  value={formData.securityCode}
-                  onChange={(e) =>
-                    handleInputChange("securityCode", e.target.value)
-                  }
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                />
-              </div>
-            </div>
-            {/* Cardholder Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Cardholder name
-              </label>
-              <input
-                type="text"
-                placeholder="Enter Cardholder name"
-                value={formData.cardholderName}
-                onChange={(e) =>
-                  handleInputChange("cardholderName", e.target.value)
-                }
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-              />
-            </div>
-          </div>
+          <StripeWrapper>
+            <CheckoutForm
+              amount={getSelectedCategoryPrice()}
+              email={formData.email}
+              serviceName={selectedCategory}
+              onSuccess={(paymentIntent) => {
+                console.log("Stripe payment succeeded", paymentIntent);
+                // You can call your Laravel API to store the appointment here
+              }}
+            />
+          </StripeWrapper>
         );
       case "Pay with PayPal":
         return (
@@ -233,6 +157,28 @@ export const CreateAppointments = () => {
                 onChange={(e) => handleInputChange("email", e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
               />
+            </div>
+            {/* Total and Pay Button */}
+            <div className="border-t border-gray-200 pt-4">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-gray-600">
+                  Service: {selectedCategory}
+                </span>
+                <span className="text-sm text-gray-900">
+                  ${getSelectedCategoryPrice()}
+                </span>
+              </div>
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-lg font-semibold text-gray-900">
+                  Total
+                </span>
+                <span className="text-lg font-semibold text-gray-900">
+                  ${getSelectedCategoryPrice()}
+                </span>
+              </div>
+              <button className="w-full bg-primary-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-300 cursor-pointer">
+                {getPaymentButtonText()}
+              </button>
             </div>
           </div>
         );
@@ -269,6 +215,28 @@ export const CreateAppointments = () => {
                 onChange={(e) => handleInputChange("email", e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
               />
+            </div>
+            {/* Total and Pay Button */}
+            <div className="border-t border-gray-200 pt-4">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-gray-600">
+                  Service: {selectedCategory}
+                </span>
+                <span className="text-sm text-gray-900">
+                  ${getSelectedCategoryPrice()}
+                </span>
+              </div>
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-lg font-semibold text-gray-900">
+                  Total
+                </span>
+                <span className="text-lg font-semibold text-gray-900">
+                  ${getSelectedCategoryPrice()}
+                </span>
+              </div>
+              <button className="w-full bg-primary-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-300 cursor-pointer">
+                {getPaymentButtonText()}
+              </button>
             </div>
           </div>
         );
@@ -454,28 +422,7 @@ export const CreateAppointments = () => {
             </div>
             {/* Dynamic Payment Form */}
             <div className="mb-6">{renderPaymentForm()}</div>
-            {/* Total and Pay Button */}
-            <div className="border-t border-gray-200 pt-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-600">
-                  Service: {selectedCategory}
-                </span>
-                <span className="text-sm text-gray-900">
-                  ${getSelectedCategoryPrice()}
-                </span>
-              </div>
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-lg font-semibold text-gray-900">
-                  Total
-                </span>
-                <span className="text-lg font-semibold text-gray-900">
-                  ${getSelectedCategoryPrice()}
-                </span>
-              </div>
-              <button className="w-full bg-primary-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-300 cursor-pointer">
-                {getPaymentButtonText()}
-              </button>
-            </div>
+            
           </div>
         </div>
       </div>
