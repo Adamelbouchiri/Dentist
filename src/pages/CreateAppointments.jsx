@@ -5,8 +5,6 @@ import {
   FaPaypal,
   FaCreditCard,
   FaMoneyBillWave,
-  FaChevronLeft,
-  FaChevronRight,
 } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
