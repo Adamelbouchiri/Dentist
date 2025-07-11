@@ -1,26 +1,50 @@
 import { DateTimePicker } from "../components/appointments/DateTimePicker";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   FaStar,
   FaPaypal,
   FaCreditCard,
   FaMoneyBillWave,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
 import StripeWrapper from "../components/stripe/StripeWrapper";
 import CheckoutForm from "../components/stripe/CheckoutForm";
+import Lottie from "lottie-react";
+import loadingAnimation from "../animation/Loading-animation.json";
+import axios from "axios";
+import AppContext from "../context/AppProvider";
+import { flash } from "../utils/flash";
 
 export const CreateAppointments = () => {
+  const { token } = useContext(AppContext);
+
   const [selectedCategory, setSelectedCategory] = useState("General Checkups");
   const [selectedDoctor, setSelectedDoctor] = useState(null);
+
+  const today = new Date();
+
+  const [selectDate, setSelectDate] = useState(today);
+  const [selectTime, setSelectTime] = useState("09:30");
+
+  console.log(selectDate.toISOString().split("T")[0], selectTime);
+
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState("Pay by Card");
   const [currentDoctorSlide, setCurrentDoctorSlide] = useState(0);
+
   const [formData, setFormData] = useState({
-    email: "",
-    paypalEmail: "",
+    service: "General Checkups",
+    price: 150,
+    doctor: "",
+    date: selectDate.toISOString().split("T")[0],
+    time: selectTime,
+    status: "upcoming",
+    payment_status: "",
   });
+
+  console.log(formData);
 
   const categories = [
     {
@@ -115,6 +139,41 @@ export const CreateAppointments = () => {
     return doctors.slice(startIndex, startIndex + 2);
   };
 
+  async function handlePaymentSuccess() {
+    try {
+      const payload = {
+        ...formData,
+        payment_status: "paid",
+      };
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/appointments",
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = response.data;
+
+      console.log(data);
+
+      flash.show("Appointment successful", "success", 3000);
+    } catch (error) {
+      if (error.response && error.response.status === 422) {
+        const errors = error.response.data.errors;
+        console.error("Validation failed:", errors);
+        const firstError = Object.values(errors)[0][0]; // get first error message
+        flash.show(firstError || "Validation error", "error", 5000);
+      } else {
+        flash.show("Appointment failed", "error", 3000);
+        console.error(error);
+      }
+    }
+  }
+
   const renderPaymentForm = () => {
     switch (selectedPaymentMethod) {
       case "Pay by Card":
@@ -122,11 +181,12 @@ export const CreateAppointments = () => {
           <StripeWrapper>
             <CheckoutForm
               amount={getSelectedCategoryPrice()}
+              setFormData={setFormData}
               email={formData.email}
               serviceName={selectedCategory}
-              onSuccess={(paymentIntent) => {
-                console.log("Stripe payment succeeded", paymentIntent);
-                // You can call your Laravel API to store the appointment here
+              onSuccess={() => {
+                handlePaymentSuccess();
+                // console.log(formData);
               }}
             />
           </StripeWrapper>
@@ -202,7 +262,7 @@ export const CreateAppointments = () => {
                 </ul>
               </div>
             </div>
-            
+
             {/* Total and Pay Button */}
             <div className="border-t border-gray-200 pt-4">
               <div className="flex justify-between items-center mb-2">
@@ -249,7 +309,7 @@ export const CreateAppointments = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 w-fit">
+        <div className="mb-8 flex justify-center md:justify-start">
           <img src="/images/logo.png" alt="doctor logo" />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -269,7 +329,18 @@ export const CreateAppointments = () => {
                     return (
                       <button
                         key={category.id}
-                        onClick={() => setSelectedCategory(category.name)}
+                        onClick={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            service: category.name,
+                          }));
+                          setFormData((prev) => ({
+                            ...prev,
+                            price: category.price,
+                          }));
+                          setSelectedCategory(category.name);
+                          console.log(formData);
+                        }}
                         className={`p-3 rounded-xl border-2 text-left transition-colors cursor-pointer ${
                           selectedCategory === category.name
                             ? "border-accent-500 bg-blue-50 text-accent-500"
@@ -342,7 +413,13 @@ export const CreateAppointments = () => {
                               {doctor.rating}
                             </div>
                             <button
-                              onClick={() => handleBookDoctor(doctor.id)}
+                              onClick={() => {
+                                handleBookDoctor(doctor.id);
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  doctor: doctor.name,
+                                }));
+                              }}
                               className={` py-1 px-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                                 selectedDoctor === doctor.id
                                   ? "bg-accent-500 text-white"
@@ -378,7 +455,13 @@ export const CreateAppointments = () => {
               </div>
               {/* Date and Time Picker Placeholder */}
               <div className="mb-8">
-                <DateTimePicker />
+                <DateTimePicker
+                  selectedDate={selectDate}
+                  setSelectDate={setSelectDate}
+                  selectedTime={selectTime}
+                  setSelectTime={setSelectTime}
+                  setFormData={setFormData}
+                />
               </div>
             </div>
           </div>
@@ -387,29 +470,53 @@ export const CreateAppointments = () => {
             <h3 className="text-lg font-semibold text-zinc-800 mb-6">
               Payment method
             </h3>
-            {/* Payment Method Selection */}
-            <div className="grid grid-cols-1 gap-3 mb-6">
-              {paymentMethods.map((method) => {
-                const IconComponent = method.icon;
-                return (
-                  <button
-                    key={method.id}
-                    onClick={() => setSelectedPaymentMethod(method.name)}
-                    className={`p-3 rounded-lg border text-left transition-colors flex items-center gap-3 cursor-pointer ${
-                      selectedPaymentMethod === method.name
-                        ? "border-accent-500 bg-blue-50 text-blue-500"
-                        : "border-gray-200 hover:border-gray-300 text-gray-700"
-                    }`}
-                  >
-                    <IconComponent className="text-lg" />
-                    <span className="text-sm font-medium">{method.name}</span>
-                  </button>
-                );
-              })}
-            </div>
-            {/* Dynamic Payment Form */}
-            <div className="mb-6">{renderPaymentForm()}</div>
-            
+            {formData.service &&
+            formData.doctor &&
+            formData.date &&
+            formData.time ? (
+              <div className="">
+                {/* Payment Method Selection */}
+                <div className="grid grid-cols-1 gap-3 mb-6">
+                  {paymentMethods.map((method) => {
+                    const IconComponent = method.icon;
+                    return (
+                      <button
+                        key={method.id}
+                        onClick={() => setSelectedPaymentMethod(method.name)}
+                        className={`p-3 rounded-lg border text-left transition-colors flex items-center gap-3 cursor-pointer ${
+                          selectedPaymentMethod === method.name
+                            ? "border-accent-500 bg-blue-50 text-blue-500"
+                            : "border-gray-200 hover:border-gray-300 text-gray-700"
+                        }`}
+                      >
+                        <IconComponent className="text-lg" />
+                        <span className="text-sm font-medium">
+                          {method.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* Dynamic Payment Form */}
+                <div className="mb-6">{renderPaymentForm()}</div>
+              </div>
+            ) : (
+              <div className="">
+                <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6 shadow-sm">
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0 w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center mt-0.5">
+                      <FaExclamationTriangle className="w-3 h-3 text-amber-600" />
+                    </div>
+                    <p className="text-gray-600 text-sm leading-relaxed font-medium">
+                      Please select a service, doctor, date, and time to proceed
+                      with payment.
+                    </p>
+                  </div>
+                </div>
+
+                <Lottie animationData={loadingAnimation} loop={true} />
+              </div>
+            )}
           </div>
         </div>
       </div>

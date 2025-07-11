@@ -2,10 +2,7 @@ import { useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import axios from "axios";
 
-export const DateTimePicker = () => {
-  const today = new Date();
-  const [selectedDate, setSelectedDate] = useState(today);
-  const [selectedTime, setSelectedTime] = useState("9:30");
+export const DateTimePicker = ({ selectedDate, setSelectDate, selectedTime, setSelectTime, setFormData }) => {
 
   // Calculate the start of the current week (Monday)
   const getCurrentWeekStart = () => {
@@ -23,7 +20,7 @@ export const DateTimePicker = () => {
   // const [isBooking, setIsBooking] = useState(false);
   // const [bookingStatus, setBookingStatus] = useState(null); // 'success', 'error', or null
 
-  const timeSlots = ["9:30", "10:00", "10:30", "11:00", "11:30", "12:00", "14:00", "14:30", "15:00", "15:30", "16:00"];
+  const timeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "14:00", "14:30", "15:00", "15:30", "16:00"];
   const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   const getWeekDates = (startDate) => {
@@ -100,54 +97,9 @@ export const DateTimePicker = () => {
     if (isPastDate(date)) {
       return; // Don't allow selection of past dates
     }
-    setSelectedDate(date);
+    setSelectDate(date);
+    setFormData((prev) => ({ ...prev, date: date.toISOString().split("T")[0] }));
   };
-
-  // const handleBooking = async () => {
-  //   if (!selectedDate || !selectedTime) return;
-
-  //   setIsBooking(true);
-  //   setBookingStatus(null);
-
-  //   try {
-  //     const bookingData = {
-  //       date: selectedDate.toISOString().split("T")[0],
-  //       time: selectedTime,
-  //       timestamp: new Date().toISOString(),
-  //       service: "appointment",
-  //     };
-
-  //     const response = await fetch("/api/bookings", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(bookingData),
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error(`HTTP error! status: ${response.status}`);
-  //     }
-
-  //     const result = await response.json();
-  //     console.log("Booking successful:", result);
-
-  //     setBookingStatus("success");
-
-  //     setTimeout(() => {
-  //       setBookingStatus(null);
-  //     }, 3000);
-  //   } catch (error) {
-  //     console.error("Booking failed:", error);
-  //     setBookingStatus("error");
-
-  //     setTimeout(() => {
-  //       setBookingStatus(null);
-  //     }, 3000);
-  //   } finally {
-  //     setIsBooking(false);
-  //   }
-  // };
 
   const getBookingButtonText = () => {
     if (isBooking) return "Booking...";
@@ -236,7 +188,7 @@ export const DateTimePicker = () => {
                   ? "bg-primary-500 text-white border-blue-600 hover:bg-blue-700"
                   : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
               }`}
-              onClick={() => setSelectedTime(time)}
+              onClick={() => {setSelectTime(time); setFormData((prev) => ({ ...prev, time: time }));}}
             >
               {time}
             </button>

@@ -4,6 +4,7 @@ import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import axios from "axios";
 import { flash } from "../../utils/flash";
 import { PuffLoader } from "react-spinners";
+import { form } from "framer-motion/client";
 
 const CheckoutForm = ({ amount, email, onSuccess, serviceName }) => {
   const stripe = useStripe();
@@ -44,7 +45,7 @@ const CheckoutForm = ({ amount, email, onSuccess, serviceName }) => {
         if (result.paymentIntent.status === "succeeded") {
           // alert("Payment successful");
           onSuccess(result.paymentIntent); // pass to parent
-          flash.show("Payment successful", "success", 3000);
+          flash.show("Payment successful", "success", 2000);
         }
       }
     } catch (error) {
