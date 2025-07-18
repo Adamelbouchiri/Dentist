@@ -106,7 +106,7 @@ export const Navigation = () => {
           </li>
           {user ? (
             <li className="flex gap-4 items-center font-bold py-2 px-6 rounded-3xl  cursor-pointer">
-              <Link to="path">{user?.name}</Link>
+              <Link to="/dashboard">{user?.name}</Link>
               {user?.avatar === null ? (
                 <span className="bg-accent-500 inline-block rounded-full p-2">
                   <FiUser className="text-2xl text-zinc-100 " />
@@ -188,7 +188,7 @@ export const Navigation = () => {
 
           {user ? (
             <Link
-              to=""
+              to="/dashboard"
               className="mt-10 flex items-center gap-4 cursor-pointer"
             >
               {user?.avatar === null ? (

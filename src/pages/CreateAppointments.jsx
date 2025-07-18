@@ -28,14 +28,12 @@ export const CreateAppointments = () => {
   const [selectDate, setSelectDate] = useState(today);
   const [selectTime, setSelectTime] = useState("09:30");
 
-  console.log(selectDate.toISOString().split("T")[0], selectTime);
-
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState("Pay by Card");
   const [currentDoctorSlide, setCurrentDoctorSlide] = useState(0);
 
   const [formData, setFormData] = useState({
-    service: "General Checkups",
+    service: selectedCategory,
     price: 150,
     doctor: "",
     date: selectDate.toISOString().split("T")[0],
@@ -82,21 +80,21 @@ export const CreateAppointments = () => {
   const doctors = [
     {
       id: 1,
-      name: "Dr. Hamza",
+      name: "Dr. Cris waxon",
       speciality: "General Dentist",
       rating: 4.9,
       image: "/images/doctor-1.jpg",
     },
     {
       id: 2,
-      name: "Dr. Frank",
+      name: "Dr. Tayler Smith",
       speciality: "Orthodontist",
       rating: 4.8,
       image: "/images/doctor-2.jpg",
     },
     {
       id: 3,
-      name: "Dr. Frank",
+      name: "Dr. John Doe",
       speciality: "General Dentist",
       rating: 4.8,
       image: "/images/doctor-3.jpg",
@@ -139,11 +137,11 @@ export const CreateAppointments = () => {
     return doctors.slice(startIndex, startIndex + 2);
   };
 
-  async function handlePaymentSuccess() {
+  async function handleAppointment(paymentStatus) {
     try {
       const payload = {
         ...formData,
-        payment_status: "paid",
+        payment_status: paymentStatus,
       };
 
       const response = await axios.post(
@@ -160,7 +158,7 @@ export const CreateAppointments = () => {
 
       console.log(data);
 
-      flash.show("Appointment successful", "success", 3000);
+      flash.show("Appointment created successfully", "success", 3000);
     } catch (error) {
       if (error.response && error.response.status === 422) {
         const errors = error.response.data.errors;
@@ -171,6 +169,17 @@ export const CreateAppointments = () => {
         flash.show("Appointment failed", "error", 3000);
         console.error(error);
       }
+    } finally {
+      setFormData({
+        ...formData,
+        doctor: "",
+        date: selectDate.toISOString().split("T")[0],
+        time: selectTime,
+        status: "upcoming",
+        payment_status: "",
+      });
+      setSelectedCategory("General Checkups");
+      setSelectedDoctor(null);
     }
   }
 
@@ -185,8 +194,7 @@ export const CreateAppointments = () => {
               email={formData.email}
               serviceName={selectedCategory}
               onSuccess={() => {
-                handlePaymentSuccess();
-                // console.log(formData);
+                handleAppointment("paid");
               }}
             />
           </StripeWrapper>
@@ -281,7 +289,7 @@ export const CreateAppointments = () => {
                   ${getSelectedCategoryPrice()}
                 </span>
               </div>
-              <button className="w-full bg-primary-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-300 cursor-pointer">
+              <button onClick={() => {handleAppointment("pay in person")}} className="w-full bg-primary-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-300 cursor-pointer">
                 {getPaymentButtonText()}
               </button>
             </div>

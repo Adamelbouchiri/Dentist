@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import AppContext from "../../context/AppProvider";
 
-
 export const Register = () => {
   const { setToken } = useContext(AppContext);
 
@@ -46,6 +45,10 @@ export const Register = () => {
 
   const handleGoogleLogin = () => {
     window.location.href = "http://127.0.0.1:8000/api/auth/google/redirect";
+  };
+
+  const handleFacebookLogin = () => {
+    window.location.href = "http://127.0.0.1:8000/api/auth/facebook/redirect";
   };
 
   return (
@@ -203,7 +206,12 @@ export const Register = () => {
                 <span className="ps-4">Continue with Google</span>
               </button>
 
-              <button className="flex items-center w-full  p-2 rounded-full bg-gray-100 text-zinc-800 font-semibold cursor-pointer">
+              <button
+                onClick={() => {
+                  handleFacebookLogin();
+                }}
+                className="flex items-center w-full  p-2 rounded-full bg-gray-100 text-zinc-800 font-semibold cursor-pointer"
+              >
                 <FaFacebook className="text-xl text-blue-700" />{" "}
                 <span className="ps-4">Continue with Facebook</span>
               </button>

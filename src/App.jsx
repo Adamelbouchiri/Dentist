@@ -17,6 +17,10 @@ import { ResetPassword } from "./pages/Auth/ResetPassword";
 import { GuestRoute } from "./routes/GuestRoute";
 import { AuthRoute } from "./routes/AuthRoute";
 import FlashMessage from "./components/FlashMessage";
+import { Dashboard } from "./pages/Dashboard";
+import { Profile } from "./pages/Profile";
+import { Appointments } from "./pages/Appointments";
+import { Settings } from "./pages/Settings";
 
 function App() {
   return (
@@ -28,6 +32,12 @@ function App() {
 
           <Route element={<AuthRoute />}>
             <Route path="/appointments" element={<CreateAppointments />} />
+
+            <Route path="/dashboard" element={<Dashboard />}>
+              <Route index element={<Profile />} />
+              <Route path="appointments" element={<Appointments />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
           </Route>
 
           <Route element={<GuestRoute />}>
@@ -44,6 +54,7 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
+
           <Route path="/second-Registration" element={<SecondRegistration />} />
         </Routes>
       </Router>
