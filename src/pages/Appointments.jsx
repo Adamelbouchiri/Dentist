@@ -6,6 +6,8 @@ import { flash } from "../utils/flash";
 import { Link } from "react-router-dom";
 import { FaCalendar } from "react-icons/fa";
 import { BounceLoader } from "react-spinners";
+import Lottie from "lottie-react";
+import noData from "../animation/non-data-found.json";
 
 export const Appointments = () => {
   const { token } = useContext(AppContext);
@@ -13,7 +15,8 @@ export const Appointments = () => {
   const [appointments, setAppointments] = useState(null);
 
   const StatusBadge = ({ status }) => {
-    const base = "px-3 py-1 rounded-full text-xs font-semibold text-white";
+    const base =
+      "px-3 py-1 rounded-lg text-xs font-semibold text-white capitalize";
     const styles = {
       upcoming: "bg-black",
       completed: "bg-black",
@@ -23,7 +26,7 @@ export const Appointments = () => {
   };
 
   const PaymentBadge = ({ payment }) => {
-    const base = "px-3 py-1 rounded-full text-xs font-semibold";
+    const base = "px-3 py-1 rounded-lg text-xs font-semibold";
     const styles = {
       pending: "bg-gray-200 text-gray-800",
       paid: "bg-black text-white",
@@ -33,10 +36,12 @@ export const Appointments = () => {
   };
 
   const AppointmentCard = ({ appt }) => (
-    <div className="p-4 border border-gray-300 rounded-xl shadow-lg bg-white w-full md:w-[45%] ">
+    <div className="p-4 border border-gray-300 rounded-xl shadow-lg bg-white w-full  ">
       <h3 className="font-semibold text-lg">{appt.service}</h3>
-      <p className="text-sm text-gray-600 mb-2">{appt.doctor}</p>
-      <div className="text-sm space-y-1">
+      <p className="text-sm text-gray-600 mb-2 border-b border-gray-300 pb-2">
+        {appt.doctor}
+      </p>
+      <div className="text-md space-y-1">
         <p>
           <span className="font-semibold">Date:</span> {appt.date}
         </p>
@@ -44,7 +49,7 @@ export const Appointments = () => {
           <span className="font-semibold">Time:</span> {appt.time}
         </p>
         <p>
-          <span className="font-semibold">Price:</span> {appt.price}
+          <span className="font-semibold">Price:</span> ${appt.price}
         </p>
         <p>
           <span className="font-semibold">Status:</span>{" "}
@@ -52,7 +57,7 @@ export const Appointments = () => {
         </p>
         <p>
           <span className="font-semibold">Payment:</span>{" "}
-          <PaymentBadge payment={appt.payment} />
+          <PaymentBadge payment={appt.payment_status} />
         </p>
       </div>
     </div>
@@ -84,7 +89,7 @@ export const Appointments = () => {
       <BounceLoader color="#3802ff" size={50} />
     </div>
   ) : (
-    <div className="max-w-6xl mx-auto p-4">
+    <div className="p-4">
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold">Your Appointments</h1>
         <Link
@@ -95,7 +100,7 @@ export const Appointments = () => {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
         <div className="p-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl shadow">
           <p className="text-sm flex items-center justify-between">
             Total Appointments <FaCalendar />
@@ -114,14 +119,14 @@ export const Appointments = () => {
           </h2>
           <p className="text-xs mt-1">Appointments in the near future</p>
         </div>
-        <div className="p-4 bg-white border border-gray-300 rounded-xl shadow">
-          <p className="text-sm flex items-center justify-between">
-            Completed <FaCalendar className="text-primary-500" />
+        <div className="p-4 bg-green-200 border border-green-300 rounded-xl shadow-green-200">
+          <p className="text-sm flex items-center justify-between text-zinc-700">
+            Completed <FaCalendar className="text-green-500" />
           </p>
           <h2 className="text-3xl font-bold">
             {appointments.filter((appt) => appt.status === "completed")
               .length || (
-              <span className="text-gray-400 text-lg">
+              <span className="text-zinc-700 text-lg">
                 No completed appointments yet
               </span>
             )}
@@ -132,26 +137,51 @@ export const Appointments = () => {
 
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Upcoming</h2>
-        <div className="flex flex-wrap gap-4">
-          {appointments.map((appt, i) => (
-            <AppointmentCard key={i} appt={appt} />
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {appointments.length === 0 ? (
+            <div className=" bg-white w-[49%] border border-gray-300 rounded-xl shadow p-4">
+              <p className="text-gray-400 text-lg">
+                No completed appointments yet
+              </p>
+
+              <div className="">
+                <Lottie
+                  animationData={noData}
+                  loop={true}
+                  style={{ height: 200 }}
+                />
+              </div>
+            </div>
+          ) : (
+            appointments.map((appt, i) => (
+              <AppointmentCard key={i} appt={appt} />
+            ))
+          )}
         </div>
       </div>
 
       <div>
         <h2 className="text-2xl font-semibold mb-4">Past & Completed</h2>
         <div className="flex flex-wrap gap-4">
-          {appointments.filter((appt) => appt.status === "completed").length === 0 ? (
-            <div className=" bg-white border border-gray-300 rounded-xl shadow p-4">
-              <p className="text-gray-400 text-lg">No completed appointments yet</p>
+          {appointments.filter((appt) => appt.status === "completed").length ===
+          0 ? (
+            <div className=" bg-white w-[49%] border border-gray-300 rounded-xl shadow p-4">
+              <p className="text-gray-400 text-lg">
+                No completed appointments yet
+              </p>
+
+              <div className="">
+                <Lottie
+                  animationData={noData}
+                  loop={true}
+                  style={{ height: 200 }}
+                />
+              </div>
             </div>
           ) : (
             appointments
               .filter((appt) => appt.status === "completed")
-              .map((appt, i) => (
-                <AppointmentCard key={i} appt={appt} />
-              ))  
+              .map((appt, i) => <AppointmentCard key={i} appt={appt} />)
           )}
         </div>
       </div>

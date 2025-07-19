@@ -43,6 +43,7 @@ export const Dashboard = () => {
             <ul className="space-y-3">
               <li>
                 <Link
+                  onClick={() => setIsOpen(false)}
                   to="/dashboard"
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-primary-500 transition-all duration-300 group backdrop-blur-sm ${
                     location.pathname === "/dashboard"
@@ -56,6 +57,7 @@ export const Dashboard = () => {
               </li>
               <li>
                 <Link
+                  onClick={() => setIsOpen(false)}
                   to="appointments"
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-primary-500 transition-all duration-300 group backdrop-blur-sm ${
                     location.pathname === "/dashboard/appointments"
@@ -69,6 +71,7 @@ export const Dashboard = () => {
               </li>
               <li>
                 <Link
+                  onClick={() => setIsOpen(false)}
                   to="settings"
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-primary-500  transition-all duration-300 group backdrop-blur-sm ${
                     location.pathname === "/dashboard/settings"
