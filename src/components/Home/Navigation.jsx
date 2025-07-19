@@ -168,13 +168,12 @@ export const Navigation = () => {
                   setActive(item.name);
                   setIsOpen(false);
                 }}
-                className={`flex gap-4 text-lg items-center font-bold py-3 px-4 rounded-lg duration-300 transition-colors cursor-pointer hover:bg-primary-500 hover:text-white ${
+                className={`  text-lg items-center font-bold rounded-lg duration-300 transition-colors cursor-pointer hover:bg-primary-500 hover:text-white ${
                   active !== item.name && "text-zinc-400"
                 } ${active === item.name && "bg-primary-500 text-white"} mb-4`}
               >
-                {item.icon}
-                <a href="#" className="capitalize">
-                  {item.name}
+                <a href={`#${item.name}`} className="capitalize py-3 px-4 flex items-center gap-4">
+                  {item.icon} {item.name}
                 </a>
               </li>
             ))}
@@ -182,7 +181,10 @@ export const Navigation = () => {
         </div>
 
         <div className="w-full">
-          <Link to="/appointments" className=" block cursor-pointer font-bold py-3 px-6 rounded-3xl gradient bg-gradient-to-r from-[#c7bbff] to-accent-500">
+          <Link
+            to="/create-appointments"
+            className=" block cursor-pointer font-bold py-3 px-6 rounded-3xl gradient bg-gradient-to-r from-[#c7bbff] to-accent-500"
+          >
             Book Appointment
           </Link>
 
@@ -216,8 +218,18 @@ export const Navigation = () => {
             </Link>
           ) : (
             <div className="mt-4 flex items-center gap-2">
-              <Link to="/login" className="font-bold p-2 text-center rounded-3xl gradient bg-gradient-to-r from-[#c7bbff] to-accent-500 flex-1">Login</Link>
-              <Link to="/register" className="font-bold p-2 text-center rounded-3xl gradient bg-gradient-to-r from-[#c7bbff] to-accent-500 flex-1">Register</Link>
+              <Link
+                to="/login"
+                className="font-bold p-2 text-center rounded-3xl gradient bg-gradient-to-r from-[#c7bbff] to-accent-500 flex-1"
+              >
+                Login
+              </Link>
+              <Link
+                to="/register"
+                className="font-bold p-2 text-center rounded-3xl gradient bg-gradient-to-r from-[#c7bbff] to-accent-500 flex-1"
+              >
+                Register
+              </Link>
             </div>
           )}
         </div>

@@ -64,7 +64,7 @@ export const Services = () => {
 
             <p className="w-72 text-center pb-4">{service.desc}</p>
 
-            <Link to="/appointments" className="text-sm cursor-pointer text-white border border-white px-6 py-1 rounded-full gradient-primary font-bold ">
+            <Link to="/create-appointments" className="text-sm cursor-pointer text-white border border-white px-6 py-1 rounded-full gradient-primary font-bold ">
               Schedule an appointment
             </Link>
           </div>

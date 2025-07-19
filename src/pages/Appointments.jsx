@@ -1,7 +1,160 @@
-import React from 'react'
+import axios from "axios";
+import { useContext, useEffect, useState } from "react";
+import { FaCalendarPlus } from "react-icons/fa6";
+import AppContext from "../context/AppProvider";
+import { flash } from "../utils/flash";
+import { Link } from "react-router-dom";
+import { FaCalendar } from "react-icons/fa";
+import { BounceLoader } from "react-spinners";
 
 export const Appointments = () => {
-  return (
-    <div>Appointments</div>
-  )
-}
+  const { token } = useContext(AppContext);
+
+  const [appointments, setAppointments] = useState(null);
+
+  const StatusBadge = ({ status }) => {
+    const base = "px-3 py-1 rounded-full text-xs font-semibold text-white";
+    const styles = {
+      upcoming: "bg-black",
+      completed: "bg-black",
+      cancelled: "bg-red-500",
+    };
+    return <span className={`${base} ${styles[status]}`}>{status}</span>;
+  };
+
+  const PaymentBadge = ({ payment }) => {
+    const base = "px-3 py-1 rounded-full text-xs font-semibold";
+    const styles = {
+      pending: "bg-gray-200 text-gray-800",
+      paid: "bg-black text-white",
+      refunded: "bg-gray-200 text-gray-800",
+    };
+    return <span className={`${base} ${styles[payment]}`}>{payment}</span>;
+  };
+
+  const AppointmentCard = ({ appt }) => (
+    <div className="p-4 border border-gray-300 rounded-xl shadow-lg bg-white w-full md:w-[45%] ">
+      <h3 className="font-semibold text-lg">{appt.service}</h3>
+      <p className="text-sm text-gray-600 mb-2">{appt.doctor}</p>
+      <div className="text-sm space-y-1">
+        <p>
+          <span className="font-semibold">Date:</span> {appt.date}
+        </p>
+        <p>
+          <span className="font-semibold">Time:</span> {appt.time}
+        </p>
+        <p>
+          <span className="font-semibold">Price:</span> {appt.price}
+        </p>
+        <p>
+          <span className="font-semibold">Status:</span>{" "}
+          <StatusBadge status={appt.status} />
+        </p>
+        <p>
+          <span className="font-semibold">Payment:</span>{" "}
+          <PaymentBadge payment={appt.payment} />
+        </p>
+      </div>
+    </div>
+  );
+
+  useEffect(() => {
+    async function fetchUserAppointments() {
+      try {
+        const response = await axios.get(
+          "http://127.0.0.1:8000/api/user-appointments",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setAppointments(response.data);
+      } catch (error) {
+        flash.show(error.response.data.message, "error", 3000);
+      }
+    }
+
+    fetchUserAppointments();
+  }, []);
+
+  return !appointments ? (
+    <div className="flex justify-center items-center h-screen">
+      <BounceLoader color="#3802ff" size={50} />
+    </div>
+  ) : (
+    <div className="max-w-6xl mx-auto p-4">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <h1 className="text-3xl font-bold">Your Appointments</h1>
+        <Link
+          to="/create-appointments"
+          className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white font-semibold rounded-lg shadow"
+        >
+          <FaCalendarPlus /> Add Appointment
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+        <div className="p-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl shadow">
+          <p className="text-sm flex items-center justify-between">
+            Total Appointments <FaCalendar />
+          </p>
+          <h2 className="text-3xl font-bold">{appointments.length}</h2>
+          <p className="text-xs mt-1">
+            All your scheduled and past appointments
+          </p>
+        </div>
+        <div className="p-4 bg-white border border-gray-300 rounded-xl shadow">
+          <p className="text-sm flex items-center justify-between">
+            Upcoming <FaCalendar className="text-primary-500" />
+          </p>
+          <h2 className="text-3xl font-bold">
+            {appointments.filter((appt) => appt.status === "upcoming").length}
+          </h2>
+          <p className="text-xs mt-1">Appointments in the near future</p>
+        </div>
+        <div className="p-4 bg-white border border-gray-300 rounded-xl shadow">
+          <p className="text-sm flex items-center justify-between">
+            Completed <FaCalendar className="text-primary-500" />
+          </p>
+          <h2 className="text-3xl font-bold">
+            {appointments.filter((appt) => appt.status === "completed")
+              .length || (
+              <span className="text-gray-400 text-lg">
+                No completed appointments yet
+              </span>
+            )}
+          </h2>
+          <p className="text-xs mt-1">Successfully finished appointments</p>
+        </div>
+      </div>
+
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold mb-4">Upcoming</h2>
+        <div className="flex flex-wrap gap-4">
+          {appointments.map((appt, i) => (
+            <AppointmentCard key={i} appt={appt} />
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-2xl font-semibold mb-4">Past & Completed</h2>
+        <div className="flex flex-wrap gap-4">
+          {appointments.filter((appt) => appt.status === "completed").length === 0 ? (
+            <div className=" bg-white border border-gray-300 rounded-xl shadow p-4">
+              <p className="text-gray-400 text-lg">No completed appointments yet</p>
+            </div>
+          ) : (
+            appointments
+              .filter((appt) => appt.status === "completed")
+              .map((appt, i) => (
+                <AppointmentCard key={i} appt={appt} />
+              ))  
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};

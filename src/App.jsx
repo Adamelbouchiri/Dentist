@@ -31,7 +31,7 @@ function App() {
           <Route path="/" element={<Home />} />
 
           <Route element={<AuthRoute />}>
-            <Route path="/appointments" element={<CreateAppointments />} />
+            <Route path="/create-appointments" element={<CreateAppointments />} />
 
             <Route path="/dashboard" element={<Dashboard />}>
               <Route index element={<Profile />} />

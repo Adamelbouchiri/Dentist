@@ -28,7 +28,7 @@ export const Hero = () => {
         </div>
 
         <div className="flex justify-center relative pt-6 lg:pt-10">
-          <Link to="/appointments" className="text-white border border-white px-4 py-2 rounded-full gradient-primary font-bold cursor-pointer">Book an Appointment</Link>
+          <Link to="/create-appointments" className="text-white border border-white px-4 py-2 rounded-full gradient-primary font-bold cursor-pointer">Book an Appointment</Link>
         </div>
 
         <div className="absolute hidden lg:block bottom-10 left-10">

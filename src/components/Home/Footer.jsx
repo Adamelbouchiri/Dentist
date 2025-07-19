@@ -59,7 +59,7 @@ export const Footer = () => {
               🕓 Hours: Mon-Sat: 9AM - 6PM
             </li>
           </ul>
-          <Link to="/appointments" className="font-bold py-2 px-6 rounded-3xl gradient bg-gradient-to-b from-primary-500 to-accent-500 border border-white cursor-pointer">
+          <Link to="/create-appointments" className="font-bold py-2 px-6 rounded-3xl gradient bg-gradient-to-b from-primary-500 to-accent-500 border border-white cursor-pointer">
             Book an Appointment
           </Link>
         </div>
