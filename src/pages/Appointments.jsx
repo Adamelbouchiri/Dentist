@@ -139,7 +139,7 @@ export const Appointments = () => {
         <h2 className="text-2xl font-semibold mb-4">Upcoming</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {appointments.length === 0 ? (
-            <div className=" bg-white w-[49%] border border-gray-300 rounded-xl shadow p-4">
+            <div className="bg-white w-[99%] border border-gray-300 rounded-xl shadow p-4">
               <p className="text-gray-400 text-lg">
                 No completed appointments yet
               </p>
@@ -165,7 +165,7 @@ export const Appointments = () => {
         <div className="flex flex-wrap gap-4">
           {appointments.filter((appt) => appt.status === "completed").length ===
           0 ? (
-            <div className=" bg-white w-[49%] border border-gray-300 rounded-xl shadow p-4">
+            <div className=" bg-white w-full lg:w-[49%] border border-gray-300 rounded-xl shadow p-4">
               <p className="text-gray-400 text-lg">
                 No completed appointments yet
               </p>

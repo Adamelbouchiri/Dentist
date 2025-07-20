@@ -14,6 +14,8 @@ import AppContext from "../../context/AppProvider";
 import { Link, Links } from "react-router-dom";
 
 export const Navigation = () => {
+  const BASE_URL = "http://127.0.0.1:8000";
+
   const { user } = useContext(AppContext);
 
   const [isOpen, setIsOpen] = useState(false);
@@ -105,20 +107,29 @@ export const Navigation = () => {
             <a href="#dentists">Dentists</a>
           </li>
           {user ? (
-            <li className="flex gap-4 items-center font-bold py-2 px-6 rounded-3xl  cursor-pointer">
-              <Link to="/dashboard">{user?.name}</Link>
-              {user?.avatar === null ? (
-                <span className="bg-accent-500 inline-block rounded-full p-2">
+            <Link
+              to="/dashboard"
+              className="flex gap-4 items-center font-bold py-2 px-6 rounded-3xl  cursor-pointer"
+            >
+              <div>{user?.name}</div>
+              {user?.avatar?.startsWith("http") ? (
+                <img
+                  src={user.avatar}
+                  alt="Profile"
+                  className="w-12 h-12 rounded-lg"
+                />
+              ) : user?.avatar ? (
+                <img
+                  src={`${BASE_URL}/storage/images/${user.avatar}`}
+                  alt="Profile"
+                  className="w-12 h-12 rounded-lg"
+                />
+              ) : (
+                <span className="bg-accent-500 inline-block rounded-lg p-2">
                   <FiUser className="text-2xl text-zinc-100 " />
                 </span>
-              ) : (
-                <img
-                  src={user?.avatar}
-                  alt="avatar"
-                  className="w-10 h-10 rounded-full"
-                />
               )}
-            </li>
+            </Link>
           ) : (
             <li className="flex items-center font-bold text-sm py-2 px-6 rounded-3xl gradient bg-gradient-to-r from-[#c7bbff] to-accent-500 ">
               <Link to="/login">Login</Link>
@@ -172,7 +183,10 @@ export const Navigation = () => {
                   active !== item.name && "text-zinc-400"
                 } ${active === item.name && "bg-primary-500 text-white"} mb-4`}
               >
-                <a href={`#${item.name}`} className="capitalize py-3 px-4 flex items-center gap-4">
+                <a
+                  href={`#${item.name}`}
+                  className="capitalize py-3 px-4 flex items-center gap-4"
+                >
                   {item.icon} {item.name}
                 </a>
               </li>
@@ -193,16 +207,22 @@ export const Navigation = () => {
               to="/dashboard"
               className="mt-10 flex items-center gap-4 cursor-pointer"
             >
-              {user?.avatar === null ? (
-                <span className="bg-accent-500 inline-block rounded-full p-2">
+              {user?.avatar?.startsWith("http") ? (
+                <img
+                  src={user.avatar}
+                  alt="Profile"
+                  className="w-12 h-12 rounded-lg"
+                />
+              ) : user?.avatar ? (
+                <img
+                  src={`${BASE_URL}/storage/images/${user.avatar}`}
+                  alt="Profile"
+                  className="w-12 h-12 rounded-lg"
+                />
+              ) : (
+                <span className="bg-accent-500 inline-block rounded-lg p-2">
                   <FiUser className="text-2xl text-zinc-100 " />
                 </span>
-              ) : (
-                <img
-                  src={user?.avatar}
-                  alt="avatar"
-                  className="w-10 h-10 rounded-full"
-                />
               )}
 
               <div className="flex justify-between items-center w-full">

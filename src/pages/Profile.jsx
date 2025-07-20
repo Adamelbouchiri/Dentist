@@ -17,6 +17,7 @@ import {
   FaComments,
   FaUserFriends,
   FaWhatsapp,
+  FaUser,
 } from "react-icons/fa";
 import { FiUsers, FiUser, FiHeart } from "react-icons/fi";
 
@@ -27,6 +28,7 @@ import axios from "axios";
 import { flash } from "../utils/flash";
 
 export const Profile = () => {
+  const BASE_URL = "http://127.0.0.1:8000";
   const { user, token } = useContext(AppContext);
 
   const [registration, setRegistration] = useState(null);
@@ -169,7 +171,7 @@ export const Profile = () => {
     async function getSecondRegistration() {
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/api/user-second-registration",
+          `${BASE_URL}/api/user-second-registration`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -192,34 +194,34 @@ export const Profile = () => {
     </div>
   ) : (
     <div className="">
-      <div className="bg-gray-100 rounded-md flex justify-center shadow-md">
-        <div className="p-4 flex flex-col items-center">
-          <img
-            src={user?.avatar}
-            alt={user?.name}
-            className="w-16 h-16 lg:w-20 lg:h-20 rounded-lg "
-          />
-          <h1 className="text-xl lg:text-2xl font-bold mt-2 capitalize">
-            {user?.name}
-          </h1>
-          <p className="text-gray-500 text-md mt-2">{user?.email}</p>
-
-          <div className="flex flex-col md:flex-row gap-4 mt-3">
-            <div className="flex items-center gap-2 bg-gradient-to-br from-primary-500 to-primary-500/60 rounded-lg px-4 py-2 cursor-default">
-              <FaCalendar className="w-4 h-4 text-white" />
-              <span className="text-sm text-white">
-                Joined : {formatDate(user?.created_at)}
-              </span>
+      <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+        <div className="flex items-center space-x-6">
+          <div className="relative">
+            <div className="w-24 h-24 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center overflow-hidden">
+              {user?.avatar?.startsWith("http") ? (
+                <img
+                  src={user.avatar}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : user?.avatar ? (
+                <img
+                  src={`${BASE_URL}/storage/images/${user.avatar}`}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <FaUser className="w-12 h-12 text-white" />
+              )}
             </div>
-            <div className="flex items-center gap-2 bg-gradient-to-br from-primary-500 to-primary-500/60 rounded-lg px-4 py-2 cursor-default">
-              <FiUsers className="w-4 h-4 text-white" />
-              <span className="text-sm text-white ">
-                {user?.google_id
-                  ? "Google Account"
-                  : user?.facebook_id
-                  ? "Facebook Account"
-                  : "Local Account"}
-              </span>
+          </div>
+
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-gray-900">{user?.name}</h1>
+            <p className="text-gray-600 mt-1">{user?.email}</p>
+            <div className="flex items-center mt-3">
+              <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+              <span className="text-sm text-gray-500">Active</span>
             </div>
           </div>
         </div>
@@ -227,7 +229,6 @@ export const Profile = () => {
 
       <div className="mt-10 p-4 bg-white rounded-md shadow-md">
         <div className="flex items-center gap-2 pb-6">
-          
           <h1 className="text-2xl lg:text-3xl font-bold pb-2 border-b-2 border-primary-500">
             Personal Information
           </h1>
@@ -286,7 +287,6 @@ export const Profile = () => {
 
       <div className="mt-10 p-4 bg-white rounded-md shadow-md">
         <div className="flex items-center gap-2 pb-6">
-          
           <h1 className="text-2xl lg:text-3xl font-bold pb-2 border-b-2 border-primary-500">
             Medical Information
           </h1>
@@ -344,7 +344,6 @@ export const Profile = () => {
       </div>
       <div className="mt-10 p-4 bg-white rounded-md shadow-md">
         <div className="flex items-center gap-2 pb-6">
-          
           <h1 className="text-2xl lg:text-3xl font-bold pb-2 border-b-2 border-primary-500">
             Contact Information
           </h1>
