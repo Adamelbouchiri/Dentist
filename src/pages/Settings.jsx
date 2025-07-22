@@ -1,8 +1,16 @@
-import React, { use, useContext, useState } from "react";
-import { FaUser, FaCamera, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { useContext, useState } from "react";
+import {
+  FaUser,
+  FaCamera,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
+  FaCalendar,
+} from "react-icons/fa";
 import AppContext from "../context/AppProvider";
 import axios from "axios";
 import { flash } from "../utils/flash";
+import { FiUsers } from "react-icons/fi";
 
 export const Settings = () => {
   const BASE_URL = "http://127.0.0.1:8000";
@@ -16,6 +24,8 @@ export const Settings = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [isUploading, setIsUploading] = useState(false); // <-- Add loading state
+  const [isSavingName, setIsSavingName] = useState(false); // <-- Add loading state
+  const [isSavingPassword, setIsSavingPassword] = useState(false); // <-- Add loading state
 
   const [passwords, setPasswords] = useState({
     currentPassword: "",
@@ -25,7 +35,6 @@ export const Settings = () => {
 
   const handleNameChange = (e) => {
     setUserName(e.target.value);
-    console.log(userName);
   };
 
   const handlePasswordChange = (field, value) => {
@@ -67,6 +76,7 @@ export const Settings = () => {
   }
 
   async function handleSaveName() {
+    setIsSavingName(true);
     try {
       const response = await axios.post(
         `${BASE_URL}/api/update-name`,
@@ -84,14 +94,35 @@ export const Settings = () => {
       flash.show(data.message, "success", 3000);
     } catch (error) {
       flash.show(error.response.data.message, "error", 3000);
-      console.log(error.response.data.message);
+    } finally {
+      setIsSavingName(false);
     }
   }
 
-  const handleChangePassword = () => {
-    // TODO: Add password change logic here
-    console.log("Change password:", passwords);
-  };
+  async function handleChangePassword() {
+    setIsSavingPassword(true);
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/api/update-password`,
+        passwords,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = response.data;
+
+      flash.show(data.message, "success", 3000);
+      setUser(data.user);
+    } catch (error) {
+      flash.show(error.response.data.message, "error", 3000);
+    } finally {
+      setIsSavingPassword(false);
+      setPasswords({ currentPassword: "", password: "", password_confirmation: "" });
+    }
+  }
 
   return !user ? (
     <div className="flex justify-center items-center h-screen">
@@ -102,7 +133,7 @@ export const Settings = () => {
       <div className="">
         {/* User Info Header */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-          <div className="flex items-center space-x-6">
+          <div className="flex flex-col items-center md:flex-row md:space-x-6">
             <div className="relative">
               <div className="w-24 h-24 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center overflow-hidden">
                 {user?.avatar?.startsWith("http") ? (
@@ -142,9 +173,27 @@ export const Settings = () => {
               />
             </div>
 
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold text-gray-900">{user?.name}</h1>
-              <p className="text-gray-600 mt-1">{user?.email}</p>
+            <div className="flex-1 flex flex-col items-center md:items-start">
+              <h1 className="text-3xl font-bold text-gray-900 mt-2">
+                {user?.name}
+              </h1>
+              <p className="text-gray-600 mt-1 mb-2 text-sm md:text-lg">
+                {user?.email}
+              </p>
+              <div className="mt-2">
+                <h2 className="w-40 text-center flex items-center gap-2 text-white py-1 px-3 rounded-lg mb-2 text-sm bg-gradient-to-br from-primary-500 to-purple-600">
+                  <FaCalendar />
+                  {user?.created_at.split("T")[0]}
+                </h2>
+                <h2 className="w-40 text-center flex items-center gap-2 text-white py-1 px-3 rounded-lg text-sm bg-gradient-to-br from-primary-500 to-purple-600">
+                  <FiUsers />
+                  {user?.google_id
+                    ? "Google account"
+                    : user?.facebook_id
+                    ? "Facebook account"
+                    : "Regular account"}
+                </h2>
+              </div>
               <div className="flex items-center mt-3">
                 <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
                 <span className="text-sm text-gray-500">Active</span>
@@ -193,10 +242,15 @@ export const Settings = () => {
               </div>
 
               <button
-                onClick={() => handleSaveName()}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-101 cursor-pointer"
+                disabled={isSavingName}
+                onClick={handleSaveName}
+                className={`w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-101 ${
+                  isSavingName
+                    ? "opacity-50 cursor-not-allowed"
+                    : "cursor-pointer"
+                }`}
               >
-                Save Changes
+                {isSavingName ? "Saving..." : "Save Name"}
               </button>
             </div>
           </div>
@@ -220,7 +274,7 @@ export const Settings = () => {
                     type={showCurrentPassword ? "text" : "password"}
                     value={passwords.currentPassword}
                     onChange={(e) =>
-                      handlePasswordChange("current", e.target.value)
+                      handlePasswordChange("currentPassword", e.target.value)
                     }
                     className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors outline-none"
                     placeholder="Enter current password"
@@ -248,7 +302,7 @@ export const Settings = () => {
                     type={showNewPassword ? "text" : "password"}
                     value={passwords.password}
                     onChange={(e) =>
-                      handlePasswordChange("new", e.target.value)
+                      handlePasswordChange("password", e.target.value)
                     }
                     className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors outline-none"
                     placeholder="Enter new password"
@@ -276,7 +330,10 @@ export const Settings = () => {
                     type={showConfirmPassword ? "text" : "password"}
                     value={passwords.password_confirmation}
                     onChange={(e) =>
-                      handlePasswordChange("confirm", e.target.value)
+                      handlePasswordChange(
+                        "password_confirmation",
+                        e.target.value
+                      )
                     }
                     className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors outline-none"
                     placeholder="Confirm new password"
@@ -296,10 +353,11 @@ export const Settings = () => {
               </div>
 
               <button
+                disabled={isSavingPassword}
                 onClick={handleChangePassword}
-                className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-3 px-4 rounded-lg font-medium hover:from-red-700 hover:to-red-800 transition-all duration-200 transform hover:scale-101 cursor-pointer"
+                className={`w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-3 px-4 rounded-lg font-medium hover:from-red-700 hover:to-red-800 transition-all duration-200 transform hover:scale-101 ${isSavingPassword ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
               >
-                Change Password
+                {isSavingPassword ? "Changing..." : "Change Password"}
               </button>
             </div>
           </div>

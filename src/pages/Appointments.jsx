@@ -124,12 +124,7 @@ export const Appointments = () => {
             Completed <FaCalendar className="text-green-500" />
           </p>
           <h2 className="text-3xl font-bold">
-            {appointments.filter((appt) => appt.status === "completed")
-              .length || (
-              <span className="text-zinc-700 text-lg">
-                No completed appointments yet
-              </span>
-            )}
+            {appointments.filter((appt) => appt.status === "completed").length}
           </h2>
           <p className="text-xs mt-1">Successfully finished appointments</p>
         </div>

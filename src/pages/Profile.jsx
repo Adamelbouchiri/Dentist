@@ -19,7 +19,7 @@ import {
   FaWhatsapp,
   FaUser,
 } from "react-icons/fa";
-import { FiUsers, FiUser, FiHeart } from "react-icons/fi";
+import { FiUsers, FiUser } from "react-icons/fi";
 
 import BounceLoader from "react-spinners/BounceLoader";
 
@@ -195,14 +195,14 @@ export const Profile = () => {
   ) : (
     <div className="">
       <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-        <div className="flex items-center space-x-6">
+        <div className="flex flex-col items-center md:flex-row md:space-x-6">
           <div className="relative">
-            <div className="w-24 h-24 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center overflow-hidden">
+            <div className="w-24 h-24 rounded-lg bg-gradient-to-r from-primary-500 to-purple-600 flex flex-col md:flex-row items-center justify-center overflow-hidden">
               {user?.avatar?.startsWith("http") ? (
                 <img
-                  src={user.avatar}
+                  src={user?.avatar}
                   alt="Profile"
-                  className="w-full h-full object-cover"
+                  className="md:w-full md:h-full object-cover"
                 />
               ) : user?.avatar ? (
                 <img
@@ -216,9 +216,25 @@ export const Profile = () => {
             </div>
           </div>
 
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-900">{user?.name}</h1>
-            <p className="text-gray-600 mt-1">{user?.email}</p>
+          <div className="flex-1 flex flex-col items-center md:items-start">
+            <h1 className="text-3xl font-bold text-gray-900 mt-2">{user?.name}</h1>
+            <p className="text-gray-600 mt-1 mb-2 text-sm md:text-lg">{user?.email}</p>
+
+            <div className="mt-2">
+              <h2 className="w-40 text-center flex items-center gap-2 text-white py-1 px-3 rounded-lg mb-2 text-sm bg-gradient-to-br from-primary-500 to-purple-600">
+                <FaCalendar />
+                {user?.created_at.split("T")[0]}
+              </h2>
+              <h2 className="w-40 text-center flex items-center gap-2 text-white py-1 px-3 rounded-lg text-sm bg-gradient-to-br from-primary-500 to-purple-600">
+                <FiUsers />
+                {user?.google_id
+                  ? "Google account"
+                  : user?.facebook_id
+                  ? "Facebook account"
+                  : "Regular account"}
+              </h2>
+            </div>
+
             <div className="flex items-center mt-3">
               <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
               <span className="text-sm text-gray-500">Active</span>
