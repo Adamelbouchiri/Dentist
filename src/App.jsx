@@ -21,6 +21,9 @@ import { Dashboard } from "./pages/Dashboard";
 import { Profile } from "./pages/Profile";
 import { Appointments } from "./pages/Appointments";
 import { Settings } from "./pages/Settings";
+import { AdminDashboard } from "./pages/AdminDashboard";
+import { AdminAppointments } from "./pages/AdminAppointments";
+import { AdminUsers } from "./pages/AdminUsers";
 
 function App() {
   return (
@@ -33,9 +36,15 @@ function App() {
           <Route element={<AuthRoute />}>
             <Route path="/create-appointments" element={<CreateAppointments />} />
 
-            <Route path="/dashboard" element={<Dashboard />}>
+            <Route path="/user/dashboard" element={<Dashboard />}>
               <Route index element={<Profile />} />
               <Route path="appointments" element={<Appointments />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+
+            <Route path="/admin/dashboard" element={<AdminDashboard />}>
+              <Route index element={<AdminAppointments />} />
+              <Route path="users" element={<AdminUsers />} />
               <Route path="settings" element={<Settings />} />
             </Route>
           </Route>

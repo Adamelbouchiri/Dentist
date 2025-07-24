@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import axios from "axios";
 import AppContext from "../../context/AppProvider";
+import { flash } from "../../utils/flash";
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -44,8 +45,10 @@ export const Login = () => {
     } catch (error) {
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
+        flash.show(error.response.data.message, "error", 3000);
       } else if (error.response?.data?.message) {
         setGeneralError(error.response.data.message);
+        flash.show(error.response.data.message, "error", 3000);
       }
     }
   }

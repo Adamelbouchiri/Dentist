@@ -7,10 +7,13 @@ const AppContext = createContext();
 export function AppProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true)
+  const [loadingUser, setLoadingUser] = useState(true);
+  // const [loading, setLoading] = useState(false);
 
   async function getUser() {
-    const response = await axios.get("http://127.0.0.1:8000/api/user", {
+    // setLoading(true);
+    try {
+      const response = await axios.get("http://127.0.0.1:8000/api/user", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -18,20 +21,26 @@ export function AppProvider({ children }) {
 
     const data = response.data;
     setUser(data);
-    setLoading(false);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      // setLoading(false);
+      setLoadingUser(false);
+    }
   }
 
   useEffect(() => {
     if (token) {
       getUser();
     } else {
-      setLoading(false)
+      // setLoading(false)
+      setLoadingUser(false);
     }
   }, [token]);
 
   console.log(user);
 
-  if(loading) {
+  if(loadingUser) {
     return (
       <div className="flex justify-center items-center h-screen">
         <BounceLoader color="#3802ff" size={50}/>
@@ -40,7 +49,7 @@ export function AppProvider({ children }) {
   }
 
   return (
-    <AppContext.Provider value={{ token, setToken, user, setUser }}>
+    <AppContext.Provider value={{ token, setToken, user, setUser, loadingUser }}>
       {children}
     </AppContext.Provider>
   );

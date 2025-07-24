@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 import axios from "axios";
 import AppContext from "../../context/AppProvider";
+import { flash } from "../../utils/flash";
 
 export const Register = () => {
   const { setToken } = useContext(AppContext);
@@ -40,6 +41,7 @@ export const Register = () => {
       navigate("/second-Registration");
     } catch (error) {
       setErrors(error.response.data.errors);
+      flash.show(error.response.data.message, "error", 3000);
     }
   }
 

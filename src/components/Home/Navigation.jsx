@@ -108,7 +108,7 @@ export const Navigation = () => {
           </li>
           {user ? (
             <Link
-              to="/dashboard"
+              to={user.role === "admin" ? "/admin/dashboard" : "/user/dashboard"}
               className="flex gap-4 items-center font-bold py-2 px-6 rounded-3xl  cursor-pointer"
             >
               <div>{user?.name}</div>
@@ -204,7 +204,7 @@ export const Navigation = () => {
 
           {user ? (
             <Link
-              to="/dashboard"
+              to={user.role === "admin" ? "/admin/dashboard" : "/user/dashboard"}
               className="mt-10 flex items-center gap-4 cursor-pointer"
             >
               {user?.avatar?.startsWith("http") ? (

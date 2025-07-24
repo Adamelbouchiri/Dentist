@@ -1,20 +1,25 @@
+import { useContext, useEffect, useRef, useState } from "react";
 import {
-  Link,
-  Navigate,
+  FiCalendar,
+  FiLogOut,
+  FiSettings,
+  FiUser,
+  FiUsers,
+} from "react-icons/fi";
+import { IoClose, IoMenu } from "react-icons/io5";
+import {
   Outlet,
+  Link,
   useLocation,
+  Navigate,
   useNavigate,
 } from "react-router-dom";
-import { FiUser, FiCalendar, FiSettings, FiLogOut } from "react-icons/fi";
-import { useContext, useEffect, useRef, useState } from "react";
-import { IoClose, IoMenu } from "react-icons/io5";
-import { FaHome } from "react-icons/fa";
 import AppContext from "../context/AppProvider";
+import { FaHome } from "react-icons/fa";
 import { flash } from "../utils/flash";
 import axios from "axios";
-import { BounceLoader } from "react-spinners";
 
-export const Dashboard = () => {
+export const AdminDashboard = () => {
   const { user, setUser, token, setToken, loadingUser } = useContext(AppContext);
   const location = useLocation();
   const navigate = useNavigate();
@@ -44,7 +49,7 @@ export const Dashboard = () => {
     );
   }
 
-  if (user.role !== "user") {
+  if (user.role !== "admin") {
     return <Navigate to="/" />;
   }
 
@@ -87,8 +92,8 @@ export const Dashboard = () => {
         <div className="relative ">
           {/* Logo/Brand */}
           <div className="flex justify-center items-center mb-8  px-4 py-2 rounded-lg border-b border-gray-200">
-            <h2 className="text-xl md:text-3xl font-bold text-accent-500">
-              Dashboard
+            <h2 className="text-xl md:text-3xl font-bold text-accent-500 text-center">
+              Admin Dashboard
             </h2>
           </div>
           {/* Side Menu */}
@@ -98,23 +103,9 @@ export const Dashboard = () => {
               <li>
                 <Link
                   onClick={() => setIsOpen(false)}
-                  to="/user/dashboard"
+                  to="/admin/dashboard"
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-primary-500 transition-all duration-300 group backdrop-blur-sm ${
-                    location.pathname === "/user/dashboard"
-                      ? "bg-primary-500 text-white"
-                      : ""
-                  }`}
-                >
-                  <FiUser className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
-                  <span className="font-medium">Profile</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  onClick={() => setIsOpen(false)}
-                  to="appointments"
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-primary-500 transition-all duration-300 group backdrop-blur-sm ${
-                    location.pathname === "/user/dashboard/appointments"
+                    location.pathname === "/admin/dashboard"
                       ? "bg-primary-500 text-white"
                       : ""
                   }`}
@@ -126,9 +117,23 @@ export const Dashboard = () => {
               <li>
                 <Link
                   onClick={() => setIsOpen(false)}
+                  to="users"
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-primary-500 transition-all duration-300 group backdrop-blur-sm ${
+                    location.pathname === "/admin/dashboard/users"
+                      ? "bg-primary-500 text-white"
+                      : ""
+                  }`}
+                >
+                  <FiUsers className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
+                  <span className="font-medium">Users</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  onClick={() => setIsOpen(false)}
                   to="settings"
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-primary-500  transition-all duration-300 group backdrop-blur-sm ${
-                    location.pathname === "/user/dashboard/settings"
+                    location.pathname === "/admin/dashboard/settings"
                       ? "bg-primary-500 text-white"
                       : ""
                   }`}
@@ -149,14 +154,9 @@ export const Dashboard = () => {
             </ul>
           </div>
         </div>
-        <button
-          onClick={handleLogout}
-          className="flex bottom-4 absolute w-[80%] items-center align-bottom space-x-3 px-4 py-3 rounded-lg cursor-pointer text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 group backdrop-blur-sm"
-        >
+        <button onClick={handleLogout} className="flex bottom-4 absolute w-[80%] items-center align-bottom space-x-3 px-4 py-3 rounded-lg cursor-pointer text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 group backdrop-blur-sm">
           <FiLogOut className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
-          <span className="font-medium">
-            {loading ? "Logging out..." : "Logout"}
-          </span>
+          <span className="font-medium">{loading ? "Logging out..." : "Logout"}</span>
         </button>
       </aside>
 
@@ -165,13 +165,16 @@ export const Dashboard = () => {
       </main>
 
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen(!isOpen);
+        }}
         className="fixed right-4 top-4 z-50 lg:hidden bg-primary-500 text-white p-2 rounded-md cursor-pointer transition-all duration-300"
       >
         {isOpen ? (
-          <IoClose className="w-6 h-6 rotate-180 transition-all duration-300 text-2xl" />
+          <IoClose className="text-2xl" />
         ) : (
-          <IoMenu className="w-6 h-6 text-2xl" />
+          <IoMenu className="text-2xl" />
         )}
       </button>
     </div>
