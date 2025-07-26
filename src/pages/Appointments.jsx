@@ -77,6 +77,7 @@ export const Appointments = () => {
 
         setAppointments(response.data);
       } catch (error) {
+        console.log(error.response.data.message);
         flash.show(error.response.data.message, "error", 3000);
       }
     }

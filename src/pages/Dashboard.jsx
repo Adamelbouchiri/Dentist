@@ -70,6 +70,7 @@ export const Dashboard = () => {
         navigate("/");
       }
     } catch (error) {
+      
       flash.show(error.response.data.message, "error", 3000);
     } finally {
       setLoading(false);
