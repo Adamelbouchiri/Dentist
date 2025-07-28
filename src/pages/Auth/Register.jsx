@@ -16,6 +16,7 @@ export const Register = () => {
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
   const [errors, setErrors] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -26,6 +27,7 @@ export const Register = () => {
 
   async function handleRegister(e) {
     e.preventDefault();
+    setLoading(true);
     setErrors({});
 
     try {
@@ -42,6 +44,8 @@ export const Register = () => {
     } catch (error) {
       setErrors(error.response.data.errors);
       flash.show(error.response.data.message, "error", 3000);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -182,8 +186,8 @@ export const Register = () => {
               </div>
             </div>
 
-            <button className="w-full mt-6 p-2 rounded-full bg-primary-500 text-white font-semibold cursor-pointer">
-              Create Account
+            <button type="submit" disabled={loading} className={`w-full mt-6 p-2 rounded-full bg-primary-500 text-white font-semibold ${loading ? "cursor-not-allowed" : " cursor-pointer"}`}>
+              { loading ? "Creating Account..." : "Create Account"}
             </button>
 
             <div className="relative">

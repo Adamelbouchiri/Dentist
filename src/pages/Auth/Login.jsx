@@ -14,6 +14,7 @@ export const Login = () => {
   const [checked, setChecked] = useState(false);
   const [errors, setErrors] = useState([]);
   const [generalError, setGeneralError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -26,8 +27,7 @@ export const Login = () => {
 
   async function handleLogin(e) {
     e.preventDefault();
-
-    console.log(formData);
+    setLoading(true);
 
     setErrors({});
 
@@ -50,10 +50,10 @@ export const Login = () => {
         setGeneralError(error.response.data.message);
         flash.show(error.response.data.message, "error", 3000);
       }
+    } finally {
+      setLoading(false);
     }
   }
-
-  console.log(errors);
 
   const handleGoogleLogin = () => {
     window.location.href = "http://127.0.0.1:8000/api/auth/google/redirect";
@@ -159,8 +159,8 @@ export const Login = () => {
               </Link>
             </div>
 
-            <button className="w-full mt-6 p-2 rounded-full bg-primary-500 text-white font-semibold cursor-pointer">
-              Sign In
+            <button type="submit" disabled={loading} className={`w-full mt-6 p-2 rounded-full bg-primary-500 text-white font-semibold ${loading ? "cursor-not-allowed" : "cursor-pointer"}`}>
+              {loading ? "Signing in..." : "Sign In"}
             </button>
 
             <div className="relative">

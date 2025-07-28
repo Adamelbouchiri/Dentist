@@ -101,8 +101,8 @@ export const AdminAppointments = () => {
 
   return (
     <div className="p-4 relative">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-6 text-center sm:text-left">
-        Admin Appointments
+      <h1 className="text-2xl font-semibold text-zinc-800 mb-6 text-center sm:text-left">
+        Manage Users Appointments
       </h1>
 
       {/* Filters */}
@@ -142,7 +142,7 @@ export const AdminAppointments = () => {
             setPage(1);
             fetchAppointments();
           }}
-          className={`w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-md ${
+          className={`w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-md transition-colors duration-300 ${
             loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
           }`}
         >
@@ -302,11 +302,11 @@ export const AdminAppointments = () => {
             </h2>
 
             <select
-              className="w-full mb-4 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
+              className="appearance-none transition-colors duration-300 cursor-pointer w-full mb-4 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none"
               value={newStatus}
               onChange={(e) => setNewStatus(e.target.value)}
             >
-              <option value="">-- Select Status --</option>
+              <option value="">Select Status </option>
               <option value="pending">Pending</option>
               <option value="confirmed">Confirmed</option>
               <option value="cancelled">Cancelled</option>
@@ -315,7 +315,7 @@ export const AdminAppointments = () => {
 
             <div className="flex justify-end gap-2">
               <button
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 cursor-pointer transition-colors duration-300"
                 onClick={() => {
                   setShowModal(false);
                   setNewStatus("");
@@ -325,7 +325,7 @@ export const AdminAppointments = () => {
               </button>
 
               <button
-                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 cursor-pointer transition-colors duration-300"
                 onClick={handleEditStatus}
               >
                 Save

@@ -16,9 +16,10 @@ import loadingAnimation from "../animation/Loading-animation.json";
 import axios from "axios";
 import AppContext from "../context/AppProvider";
 import { flash } from "../utils/flash";
+import { Navigate } from "react-router-dom";
 
 export const CreateAppointments = () => {
-  const { token } = useContext(AppContext);
+  const { user, token } = useContext(AppContext);
 
   const [selectedCategory, setSelectedCategory] = useState("General Checkups");
   const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -42,7 +43,6 @@ export const CreateAppointments = () => {
     payment_status: "",
   });
 
-  console.log(formData);
 
   const categories = [
     {
@@ -103,13 +103,12 @@ export const CreateAppointments = () => {
 
   const paymentMethods = [
     { id: "card", name: "Pay by Card", icon: FaCreditCard },
-    { id: "paypal", name: "Pay with PayPal", icon: FaPaypal },
     { id: "person", name: "Pay in Person", icon: FaMoneyBillWave },
   ];
 
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  if(user.role === "admin") {
+    return <Navigate to="/admin/dashboard" />
+  }
 
   const handleBookDoctor = (doctorId) => {
     setSelectedDoctor(doctorId);
@@ -199,55 +198,6 @@ export const CreateAppointments = () => {
             />
           </StripeWrapper>
         );
-      case "Pay with PayPal":
-        return (
-          <div className="space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-              <FaPaypal className="text-blue-600 text-4xl mx-auto mb-3" />
-              <h4 className="font-semibold text-gray-900 mb-2">
-                Pay with PayPal
-              </h4>
-              <p className="text-sm text-gray-600 mb-4">
-                You'll be redirected to PayPal to complete your payment
-                securely.
-              </p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email address
-              </label>
-              <input
-                type="email"
-                placeholder="Enter your email address"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-              />
-            </div>
-            {/* Total and Pay Button */}
-            <div className="border-t border-gray-200 pt-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-600">
-                  Service: {selectedCategory}
-                </span>
-                <span className="text-sm text-gray-900">
-                  ${getSelectedCategoryPrice()}
-                </span>
-              </div>
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-lg font-semibold text-gray-900">
-                  Total
-                </span>
-                <span className="text-lg font-semibold text-gray-900">
-                  ${getSelectedCategoryPrice()}
-                </span>
-              </div>
-              <button className="w-full bg-primary-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-300 cursor-pointer">
-                {getPaymentButtonText()}
-              </button>
-            </div>
-          </div>
-        );
       case "Pay in Person":
         return (
           <div className="space-y-4">
@@ -305,8 +255,6 @@ export const CreateAppointments = () => {
     switch (selectedPaymentMethod) {
       case "Pay by Card":
         return `Pay $${price}`;
-      case "Pay with PayPal":
-        return `Continue to PayPal`;
       case "Pay in Person":
         return `Confirm Appointment`;
       default:
