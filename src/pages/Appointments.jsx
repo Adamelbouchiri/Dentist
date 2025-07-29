@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
-import { FaCalendarPlus } from "react-icons/fa6";
+import { FaCalendarPlus, FaRegTrashCan } from "react-icons/fa6";
 import AppContext from "../context/AppProvider";
 import { flash } from "../utils/flash";
 import { Link } from "react-router-dom";
@@ -35,12 +35,38 @@ export const Appointments = () => {
     return <span className={`${base} ${styles[payment]}`}>{payment}</span>;
   };
 
+  const handleDelete = async (id) => {
+    try {
+      const response = await axios.delete(`http://127.0.0.1:8000/api/appointments/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      const updatedAppointments = appointments.filter((appt) => appt.id !== id);
+      setAppointments(updatedAppointments);
+
+      flash.show(response.data.message, "success", 3000);
+    } catch (error) {
+      console.log(error.response.data.message);
+      flash.show(error.response.data.message, "error", 3000);
+    }
+  };
+
   const AppointmentCard = ({ appt }) => (
-    <div className="p-4 border border-gray-300 rounded-xl shadow-lg bg-white w-full  ">
-      <h3 className="font-semibold text-lg">{appt.service}</h3>
-      <p className="text-sm text-gray-600 mb-2 border-b border-gray-300 pb-2">
-        {appt.doctor}
-      </p>
+    <div className="p-4 border border-gray-300 rounded-xl shadow-lg bg-white w-full">
+      <div className="flex justify-between items-start">
+        <div className="">
+          <h3 className="font-semibold text-lg">{appt.service}</h3>
+          <p className="text-sm mb-2">
+            {appt.doctor}
+          </p>
+        </div>
+
+        <button onClick={() => handleDelete(appt.id)} className="">
+          <FaRegTrashCan className="w-4 h-4 text-2xl text-red-500 transition duration-300 hover:scale-110 hover:text-red-600 cursor-pointer" />
+        </button>
+      </div>
       <div className="text-md space-y-1">
         <p>
           <span className="font-semibold">Date:</span> {appt.date}
