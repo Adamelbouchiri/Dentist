@@ -39,9 +39,15 @@ export const Login = () => {
 
       const data = response.data;
 
-      localStorage.setItem("token", data.token);
-      setToken(data.token);
-      navigate("/");
+      if (checked) {
+        localStorage.setItem("token", data.token);
+        setToken(data.token);
+        navigate("/");
+      } else {
+        sessionStorage.setItem("token", data.token);
+        setToken(data.token);
+        navigate("/");
+      }
     } catch (error) {
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
@@ -105,11 +111,9 @@ export const Login = () => {
               {errors?.email && (
                 <span className="text-red-500 text-sm">{errors.email}</span>
               )}
-              {
-                generalError && (
-                  <span className="text-red-500 text-sm">{generalError}</span>
-                )
-              }
+              {generalError && (
+                <span className="text-red-500 text-sm">{generalError}</span>
+              )}
             </div>
 
             <div className="pb-4">
@@ -159,7 +163,13 @@ export const Login = () => {
               </Link>
             </div>
 
-            <button type="submit" disabled={loading} className={`w-full mt-6 p-2 rounded-full bg-primary-500 text-white font-semibold ${loading ? "cursor-not-allowed" : "cursor-pointer"}`}>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full mt-6 p-2 rounded-full bg-primary-500 text-white font-semibold ${
+                loading ? "cursor-not-allowed" : "cursor-pointer"
+              }`}
+            >
               {loading ? "Signing in..." : "Sign In"}
             </button>
 

@@ -5,7 +5,7 @@ import { BounceLoader } from "react-spinners";
 const AppContext = createContext();
 
 export function AppProvider({ children }) {
-  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [token, setToken] = useState(localStorage.getItem("token") || sessionStorage.getItem("token"));
   const [user, setUser] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
   // const [loading, setLoading] = useState(false);

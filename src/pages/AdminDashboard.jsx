@@ -69,6 +69,7 @@ export const AdminDashboard = () => {
       const data = response.data;
       if (response.status === 200) {
         localStorage.removeItem("token");
+        sessionStorage.removeItem("token");
         setUser(null);
         setToken(null);
         flash.show(data.message, "success", 3000);

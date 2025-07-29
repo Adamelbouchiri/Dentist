@@ -222,7 +222,7 @@ export const AdminAppointments = () => {
                       className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
                         appt.status === "pending"
                           ? "bg-yellow-100 text-yellow-700"
-                          : appt.status === "confirmed"
+                          : appt.status === "completed"
                           ? "bg-green-100 text-green-700"
                           : appt.status === "cancelled"
                           ? "bg-red-100 text-red-700"
@@ -308,7 +308,7 @@ export const AdminAppointments = () => {
             >
               <option value="">Select Status </option>
               <option value="pending">Pending</option>
-              <option value="confirmed">Confirmed</option>
+              <option value="completed">Completed</option>
               <option value="cancelled">Cancelled</option>
               <option value="scheduled">Scheduled</option>
             </select>

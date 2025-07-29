@@ -18,8 +18,8 @@ export const Appointments = () => {
     const base =
       "px-3 py-1 rounded-lg text-xs font-semibold text-white capitalize";
     const styles = {
-      upcoming: "bg-black",
-      completed: "bg-black",
+      upcoming: "bg-zinc-800",
+      completed: "bg-green-500",
       cancelled: "bg-red-500",
     };
     return <span className={`${base} ${styles[status]}`}>{status}</span>;
@@ -29,26 +29,29 @@ export const Appointments = () => {
     const base = "px-3 py-1 rounded-lg text-xs font-semibold";
     const styles = {
       pending: "bg-gray-200 text-gray-800",
-      paid: "bg-black text-white",
+      paid: "bg-green-500 text-white",
       refunded: "bg-gray-200 text-gray-800",
+      pay_in_person: "bg-gray-200 text-gray-800",
     };
     return <span className={`${base} ${styles[payment]}`}>{payment}</span>;
   };
 
   const handleDelete = async (id) => {
     try {
-      const response = await axios.delete(`http://127.0.0.1:8000/api/appointments/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      
+      const response = await axios.delete(
+        `http://127.0.0.1:8000/api/appointments/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       const updatedAppointments = appointments.filter((appt) => appt.id !== id);
       setAppointments(updatedAppointments);
 
       flash.show(response.data.message, "success", 3000);
     } catch (error) {
-      console.log(error.response.data.message);
       flash.show(error.response.data.message, "error", 3000);
     }
   };
@@ -58,9 +61,7 @@ export const Appointments = () => {
       <div className="flex justify-between items-start">
         <div className="">
           <h3 className="font-semibold text-lg">{appt.service}</h3>
-          <p className="text-sm mb-2">
-            {appt.doctor}
-          </p>
+          <p className="text-sm mb-2">{appt.doctor}</p>
         </div>
 
         <button onClick={() => handleDelete(appt.id)} className="">
@@ -184,10 +185,10 @@ export const Appointments = () => {
 
       <div>
         <h2 className="text-2xl font-semibold mb-4">Past & Completed</h2>
-        <div className="flex flex-wrap gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {appointments.filter((appt) => appt.status === "completed").length ===
           0 ? (
-            <div className=" bg-white w-full lg:w-[49%] border border-gray-300 rounded-xl shadow p-4">
+            <div className=" bg-white border border-gray-300 rounded-xl shadow p-4">
               <p className="text-gray-400 text-lg">
                 No completed appointments yet
               </p>
@@ -201,9 +202,13 @@ export const Appointments = () => {
               </div>
             </div>
           ) : (
-            appointments
-              .filter((appt) => appt.status === "completed")
-              .map((appt, i) => <AppointmentCard key={i} appt={appt} />)
+            <div className="">
+              {appointments
+                .filter((appt) => appt.status === "completed")
+                .map((appt, i) => (
+                  <AppointmentCard key={i} appt={appt} />
+                ))}
+            </div>
           )}
         </div>
       </div>

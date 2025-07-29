@@ -43,6 +43,7 @@ export const CreateAppointments = () => {
     payment_status: "",
   });
 
+  const [loading, setLoading] = useState(false);
 
   const categories = [
     {
@@ -137,6 +138,7 @@ export const CreateAppointments = () => {
   };
 
   async function handleAppointment(paymentStatus) {
+    setLoading(true);
     try {
       const payload = {
         ...formData,
@@ -179,6 +181,7 @@ export const CreateAppointments = () => {
       });
       setSelectedCategory("General Checkups");
       setSelectedDoctor(null);
+      setLoading(false);
     }
   }
 
@@ -239,7 +242,7 @@ export const CreateAppointments = () => {
                   ${getSelectedCategoryPrice()}
                 </span>
               </div>
-              <button onClick={() => {handleAppointment("pay in person")}} className="w-full bg-primary-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-300 cursor-pointer">
+              <button disabled={loading} onClick={() => {handleAppointment("pay_in_person")}} className={`w-full bg-primary-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-300 ${loading ? "cursor-not-allowed" : "cursor-pointer"}`}>
                 {getPaymentButtonText()}
               </button>
             </div>
