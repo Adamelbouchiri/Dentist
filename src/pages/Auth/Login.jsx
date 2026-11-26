@@ -1,89 +1,93 @@
 import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { FiCheck } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 
 import AppContext from "../../context/AppProvider";
 import { flash } from "../../utils/flash";
 import { getErrorMessage } from "../../lib/api";
+import { applyServerErrors, loginSchema } from "../../lib/schemas";
 import { useLogin } from "../../hooks/useAuth";
+import { usePageMeta } from "../../hooks/usePageMeta";
 import { AuthLayout, Divider, SocialButtons } from "../../components/auth/AuthLayout";
 import { Input, PasswordInput } from "../../components/ui/Field";
 import { Button } from "../../components/ui/Button";
 
 export const Login = () => {
+  const { t } = useTranslation();
+  usePageMeta(t("auth.signIn"));
   const navigate = useNavigate();
   const { signIn } = useContext(AppContext);
   const login = useLogin();
-
   const [remember, setRemember] = useState(false);
-  const [formData, setFormData] = useState({ email: "", password: "" });
 
-  const errors = login.error?.response?.data?.errors || {};
-  const generalError = !login.error?.response?.data?.errors && login.error?.response?.data?.message;
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm({ resolver: zodResolver(loginSchema), defaultValues: { email: "", password: "" } });
 
-  async function handleLogin(e) {
-    e.preventDefault();
+  const onSubmit = handleSubmit(async (values) => {
     try {
-      const data = await login.mutateAsync(formData);
+      const data = await login.mutateAsync(values);
       signIn(data.token, remember);
       navigate("/");
     } catch (error) {
-      flash.show(getErrorMessage(error, "Unable to sign in"), "error", 3000);
+      if (!applyServerErrors(error, setError)) {
+        setError("email", { type: "server", message: getErrorMessage(error, t("auth.signInFailed")) });
+      }
+      flash.show(getErrorMessage(error, t("auth.signInFailed")), "error", 3500);
     }
-  }
+  });
 
   return (
     <AuthLayout
-      title="Welcome"
-      accent="back"
+      title={t("auth.welcome")}
+      accent={t("auth.welcomeAccent")}
       subtitle={
         <>
-          Don't have an account?{" "}
+          {t("auth.noAccount")}{" "}
           <Link to="/register" className="font-semibold text-primary-500 hover:underline">
-            Create one now
+            {t("auth.createOne")}
           </Link>
         </>
       }
     >
-      <form onSubmit={handleLogin} className="space-y-5">
+      <form onSubmit={onSubmit} className="space-y-5" noValidate>
         <Input
-          label="Email"
+          label={t("fields.email")}
           type="email"
           autoComplete="email"
-          placeholder="you@example.com"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          error={errors.email || generalError}
+          placeholder={t("fields.emailPlaceholder")}
+          error={errors.email}
+          {...register("email")}
         />
         <PasswordInput
-          label="Password"
+          label={t("fields.password")}
           autoComplete="current-password"
-          placeholder="Enter your password"
-          value={formData.password}
-          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+          placeholder={t("fields.passwordPlaceholder")}
           error={errors.password}
+          {...register("password")}
         />
 
         <div className="flex items-center justify-between pt-1">
           <label className="inline-flex cursor-pointer select-none items-center gap-2.5 text-sm text-ink-600">
-            <input
-              type="checkbox"
-              checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-              className="peer sr-only"
-            />
+            <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="peer sr-only" />
             <span className="grid size-5 place-items-center rounded-md bg-white ring-1 ring-inset ring-ink-300 transition peer-checked:bg-primary-500 peer-checked:ring-primary-500 peer-focus-visible:ring-2 peer-focus-visible:ring-primary-500">
               <FiCheck className="size-3 text-white" />
             </span>
-            Keep me signed in
+            {t("auth.keepSignedIn")}
           </label>
           <Link to="/forgot-password" className="text-sm font-semibold text-primary-500 hover:underline">
-            Forgot password?
+            {t("auth.forgot")}
           </Link>
         </div>
 
         <Button type="submit" size="lg" loading={login.isPending} className="w-full">
-          {login.isPending ? "Signing in…" : "Sign in"}
+          {login.isPending ? t("auth.signingIn") : t("auth.signIn")}
         </Button>
       </form>
 

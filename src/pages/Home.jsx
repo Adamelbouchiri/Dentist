@@ -7,12 +7,16 @@ import { Testimonials } from "../components/Home/Testimonials";
 import { Location } from "../components/Home/Location";
 import { Contact } from "../components/Home/Contact";
 import { Footer } from "../components/Home/Footer";
-
 import { FadeInSection } from "../components/fadeIn/FadeInSection";
+import { usePageMeta } from "../hooks/usePageMeta";
+import { useTranslation } from "react-i18next";
 
 const sections = [Services, About, Doctors, Testimonials, Location, Contact];
 
 export const Home = () => {
+  const { t } = useTranslation();
+  usePageMeta(null, t("meta.homeDescription"));
+
   return (
     <div className="bg-ivory">
       <Navigation />

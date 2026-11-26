@@ -1,4 +1,5 @@
 import { FiChevronLeft, FiChevronRight, FiSearch } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 import { Spinner } from "../ui/Spinner";
 
 export const Table = ({ columns, children, fetching }) => (
@@ -12,11 +13,11 @@ export const Table = ({ columns, children, fetching }) => (
       <table className="min-w-full text-sm">
         <thead>
           <tr className="border-b border-ink-100 bg-ink-50/60">
-            {columns.map((c) => (
+            {columns.map((c, i) => (
               <th
-                key={c.label}
-                className={`whitespace-nowrap px-5 py-3.5 text-xs font-semibold uppercase tracking-[0.14em] text-ink-400 ${
-                  c.align === "center" ? "text-center" : c.align === "right" ? "text-right" : "text-left"
+                key={c.label || i}
+                className={`whitespace-nowrap px-5 py-3.5 text-xs font-semibold uppercase tracking-[0.12em] text-ink-400 ${
+                  c.align === "center" ? "text-center" : c.align === "right" ? "text-end" : "text-start"
                 }`}
               >
                 {c.label}
@@ -30,56 +31,58 @@ export const Table = ({ columns, children, fetching }) => (
   </div>
 );
 
-export const Pagination = ({ page, lastPage, total, onChange, disabled }) => (
-  <div className="mt-5 flex flex-col items-center justify-between gap-3 sm:flex-row">
-    <p className="text-sm text-ink-500">
-      Page <span className="font-semibold text-ink-900">{page}</span> of{" "}
-      <span className="font-semibold text-ink-900">{lastPage}</span>
-      {total != null && <span className="text-ink-400"> · {total} results</span>}
-    </p>
-    <div className="flex items-center gap-2">
-      <button
-        onClick={() => onChange(Math.max(page - 1, 1))}
-        disabled={page <= 1 || disabled}
-        className="inline-flex h-10 items-center gap-1.5 rounded-full bg-white px-4 text-sm font-semibold text-ink-700 ring-1 ring-ink-200 transition hover:bg-ink-50 disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        <FiChevronLeft /> Previous
-      </button>
-      <button
-        onClick={() => onChange(Math.min(page + 1, lastPage))}
-        disabled={page >= lastPage || disabled}
-        className="inline-flex h-10 items-center gap-1.5 rounded-full bg-ink-900 px-4 text-sm font-semibold text-white transition hover:bg-ink-800 disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        Next <FiChevronRight />
-      </button>
+export const Pagination = ({ page, lastPage, total, onChange, disabled }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="mt-5 flex flex-col items-center justify-between gap-3 sm:flex-row">
+      <p className="text-sm text-ink-500">
+        {t("table.pageOf", { page, last: lastPage })}
+        {total != null && <span className="text-ink-400"> · {t("table.results", { count: total })}</span>}
+      </p>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => onChange(Math.max(page - 1, 1))}
+          disabled={page <= 1 || disabled}
+          className="inline-flex h-10 items-center gap-1.5 rounded-full bg-white px-4 text-sm font-semibold text-ink-700 ring-1 ring-ink-200 transition hover:bg-ink-50 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <FiChevronLeft className="rtl:rotate-180" /> {t("table.previous")}
+        </button>
+        <button
+          onClick={() => onChange(Math.min(page + 1, lastPage))}
+          disabled={page >= lastPage || disabled}
+          className="inline-flex h-10 items-center gap-1.5 rounded-full bg-ink-900 px-4 text-sm font-semibold text-white transition hover:bg-ink-800 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {t("table.next")} <FiChevronRight className="rtl:rotate-180" />
+        </button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 /** Search input that submits on Enter / button. */
-export const SearchBar = ({ value, onChange, onSubmit, placeholder, loading }) => (
-  <form
-    onSubmit={(e) => {
-      e.preventDefault();
-      onSubmit();
-    }}
-    className="flex flex-1 items-center gap-2 rounded-full bg-white p-1.5 pl-4 ring-1 ring-ink-200 transition focus-within:ring-2 focus-within:ring-primary-500"
-  >
-    <FiSearch className="size-4 shrink-0 text-ink-400" />
-    <input
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      className="min-w-0 flex-1 bg-transparent text-sm text-ink-900 outline-none placeholder:text-ink-300"
-    />
-    <button
-      type="submit"
-      className="inline-flex h-9 items-center gap-2 rounded-full gradient-primary px-5 text-sm font-semibold text-white"
+export const SearchBar = ({ value, onChange, onSubmit, placeholder, loading }) => {
+  const { t } = useTranslation();
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit();
+      }}
+      className="flex flex-1 items-center gap-2 rounded-full bg-white p-1.5 ps-4 ring-1 ring-ink-200 transition focus-within:ring-2 focus-within:ring-primary-500"
     >
-      {loading && <Spinner className="size-3.5" />} Search
-    </button>
-  </form>
-);
+      <FiSearch className="size-4 shrink-0 text-ink-400" />
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="min-w-0 flex-1 bg-transparent text-sm text-ink-900 outline-none placeholder:text-ink-300"
+      />
+      <button type="submit" className="inline-flex h-9 items-center gap-2 rounded-full gradient-primary px-5 text-sm font-semibold text-white">
+        {loading && <Spinner className="size-3.5" />} {t("table.search")}
+      </button>
+    </form>
+  );
+};
 
 export const Segmented = ({ options, value, onChange }) => (
   <div className="inline-flex rounded-full bg-white p-1 ring-1 ring-ink-200">

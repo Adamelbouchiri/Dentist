@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { FiArrowUpRight, FiHome, FiLogOut, FiMenu, FiX } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 
 import AppContext from "../../context/AppProvider";
 import { useLogout } from "../../hooks/useAuth";
@@ -9,17 +10,20 @@ import { getErrorMessage } from "../../lib/api";
 import { flash } from "../../utils/flash";
 import { Avatar, Logo } from "../ui/Misc";
 import { Button } from "../ui/Button";
+import { LanguageSwitcher } from "../ui/LanguageSwitcher";
 
 /**
  * Shared layout for the patient and admin areas.
- * `items`: [{ to, label, icon, end }]
+ * `items`: [{ to, label, icon, end, badge? }] — labels are already translated.
  */
 export const DashboardShell = ({ role, items, label }) => {
+  const { t, i18n } = useTranslation();
   const { user, signOut } = useContext(AppContext);
   const navigate = useNavigate();
   const location = useLocation();
   const logout = useLogout();
   const [isOpen, setIsOpen] = useState(false);
+  const rtl = i18n.dir() === "rtl";
 
   useEffect(() => setIsOpen(false), [location.pathname]);
 
@@ -27,15 +31,18 @@ export const DashboardShell = ({ role, items, label }) => {
 
   const handleLogout = () =>
     logout.mutate(undefined, {
-      onSuccess: (data) => {
+      onSuccess: () => {
         signOut();
-        flash.show(data?.message || "Signed out", "success", 3000);
+        flash.show(t("dashboard.signedOut"), "success", 3000);
         navigate("/");
       },
-      onError: (error) => flash.show(getErrorMessage(error, "Unable to sign out"), "error", 3000),
+      onError: (error) => flash.show(getErrorMessage(error, t("dashboard.signOutFailed")), "error", 3000),
     });
 
-  const current = items.find((i) => (i.end ? location.pathname === i.to : location.pathname.startsWith(i.to)));
+  // Longest matching prefix wins (so /users/12 highlights "Patients")
+  const current = [...items]
+    .filter((i) => (i.end ? location.pathname === i.to : location.pathname.startsWith(i.to)))
+    .sort((a, b) => b.to.length - a.to.length)[0];
 
   const sidebar = (
     <div className="flex h-full flex-col">
@@ -44,15 +51,15 @@ export const DashboardShell = ({ role, items, label }) => {
         <button
           onClick={() => setIsOpen(false)}
           className="grid size-9 place-items-center rounded-full bg-ink-100 text-ink-600 lg:hidden"
-          aria-label="Close menu"
+          aria-label={t("common.close")}
         >
           <FiX />
         </button>
       </div>
 
       <p className="mt-10 px-3 text-xs font-semibold uppercase tracking-[0.24em] text-ink-400">{label}</p>
-      <nav className="mt-3 flex flex-col gap-1">
-        {items.map(({ to, label, icon: Icon, end }) => (
+      <nav className="no-scrollbar mt-3 flex flex-col gap-1 overflow-y-auto">
+        {items.map(({ to, label, icon: Icon, end, badge }) => (
           <NavLink
             key={to}
             to={to}
@@ -79,7 +86,12 @@ export const DashboardShell = ({ role, items, label }) => {
                 >
                   <Icon className="size-4" />
                 </span>
-                <span className="relative">{label}</span>
+                <span className="relative flex-1">{label}</span>
+                {!!badge && (
+                  <span className="relative grid min-w-5 place-items-center rounded-full bg-primary-500 px-1.5 text-xs font-semibold text-white">
+                    {badge}
+                  </span>
+                )}
               </>
             )}
           </NavLink>
@@ -91,17 +103,17 @@ export const DashboardShell = ({ role, items, label }) => {
           <span className="grid size-8 place-items-center rounded-xl bg-white text-ink-500 ring-1 ring-ink-200/70">
             <FiHome className="size-4" />
           </span>
-          Back to website
+          {t("dashboard.backToSite")}
         </Link>
       </nav>
 
       {role === "user" && (
         <div className="relative mt-8 overflow-hidden rounded-3xl gradient-primary-to-b p-5 text-white">
-          <div className="absolute -right-10 -top-10 size-32 rounded-full bg-white/20 blur-2xl" />
-          <p className="relative text-sm font-semibold">Time for a check-up?</p>
-          <p className="relative mt-1 text-[13px] text-white/75">Book your next visit in under a minute.</p>
+          <div className="absolute -end-10 -top-10 size-32 rounded-full bg-white/20 blur-2xl" />
+          <p className="relative text-sm font-semibold">{t("dashboard.checkupTitle")}</p>
+          <p className="relative mt-1 text-[13px] text-white/75">{t("dashboard.checkupText")}</p>
           <Button to="/create-appointments" variant="light" size="xs" className="relative mt-4">
-            Book now <FiArrowUpRight />
+            {t("dashboard.bookNow")} <FiArrowUpRight className="rtl:-scale-x-100" />
           </Button>
         </div>
       )}
@@ -111,16 +123,16 @@ export const DashboardShell = ({ role, items, label }) => {
           <Avatar user={user} className="size-10" rounded="rounded-xl" />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-ink-900">{user.name}</p>
-            <p className="truncate text-[13px] capitalize text-ink-400">{user.role}</p>
+            <p className="truncate text-[13px] text-ink-400">{t(`status.${user.role}`)}</p>
           </div>
           <button
             onClick={handleLogout}
             disabled={logout.isPending}
-            title="Sign out"
-            aria-label="Sign out"
+            title={t("dashboard.signOut")}
+            aria-label={t("dashboard.signOut")}
             className="grid size-9 place-items-center rounded-xl text-ink-400 transition hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
           >
-            <FiLogOut className="size-4" />
+            <FiLogOut className="size-4 rtl:rotate-180" />
           </button>
         </div>
       </div>
@@ -129,12 +141,10 @@ export const DashboardShell = ({ role, items, label }) => {
 
   return (
     <div className="flex min-h-screen bg-ivory lg:h-screen lg:overflow-hidden">
-      {/* Desktop sidebar */}
-      <aside className="hidden w-72 shrink-0 p-4 pr-0 lg:block">
+      <aside className="hidden w-72 shrink-0 p-4 pe-0 lg:block">
         <div className="h-full rounded-[28px] bg-ink-50/60 p-4 ring-1 ring-ink-200/60">{sidebar}</div>
       </aside>
 
-      {/* Mobile drawer */}
       <AnimatePresence>
         {isOpen && (
           <>
@@ -146,10 +156,10 @@ export const DashboardShell = ({ role, items, label }) => {
               onClick={() => setIsOpen(false)}
             />
             <motion.aside
-              className="fixed inset-y-3 left-3 z-50 w-[min(86vw,300px)] rounded-[28px] bg-ivory p-4 shadow-2xl lg:hidden"
-              initial={{ x: "-110%" }}
+              className="fixed inset-y-3 start-3 z-50 w-[min(86vw,300px)] rounded-[28px] bg-ivory p-4 shadow-2xl lg:hidden"
+              initial={{ x: rtl ? "110%" : "-110%" }}
               animate={{ x: 0 }}
-              exit={{ x: "-110%" }}
+              exit={{ x: rtl ? "110%" : "-110%" }}
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             >
               {sidebar}
@@ -164,7 +174,7 @@ export const DashboardShell = ({ role, items, label }) => {
             <button
               onClick={() => setIsOpen(true)}
               className="grid size-10 place-items-center rounded-full bg-ink-900 text-white lg:hidden"
-              aria-label="Open menu"
+              aria-label={t("nav.openMenu")}
             >
               <FiMenu />
             </button>
@@ -176,8 +186,9 @@ export const DashboardShell = ({ role, items, label }) => {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <p className="hidden text-right text-sm text-ink-500 md:block">
-              Hello, <span className="font-semibold text-ink-900">{user.name?.split(" ")[0]}</span>
+            <LanguageSwitcher />
+            <p className="hidden text-end text-sm text-ink-500 md:block">
+              {t("dashboard.hello")} <span className="font-semibold text-ink-900">{user.name?.split(" ")[0]}</span>
             </p>
             <Avatar user={user} className="size-10" />
           </div>
@@ -203,7 +214,7 @@ export const PageHeader = ({ title, accent, description, action }) => (
   <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
     <div>
       <h2 className="text-3xl font-semibold tracking-[-0.03em] text-ink-900 md:text-4xl">
-        {title} {accent && <span className="font-display italic text-gradient pr-1">{accent}</span>}
+        {title} {accent && <span className="font-display italic text-gradient pe-1">{accent}</span>}
       </h2>
       {description && <p className="mt-2 text-ink-500">{description}</p>}
     </div>

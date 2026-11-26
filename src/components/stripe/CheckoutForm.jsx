@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { FiLock } from "react-icons/fi";
-import { api } from "../../lib/api";
+import { useTranslation } from "react-i18next";
+import { getErrorMessage } from "../../lib/api";
 import { flash } from "../../utils/flash";
 import { Button } from "../ui/Button";
 
@@ -17,7 +18,12 @@ const cardStyle = {
   },
 };
 
-const CheckoutForm = ({ amount, email, onSuccess, disabled }) => {
+/**
+ * `createIntent()` must resolve to `{ clientSecret, legacy }` (see useStartCheckout).
+ * `onSuccess({ legacy, paymentIntent })` fires once Stripe confirms the payment.
+ */
+const CheckoutForm = ({ amount, email, createIntent, onSuccess, disabled }) => {
+  const { t } = useTranslation();
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -28,12 +34,9 @@ const CheckoutForm = ({ amount, email, onSuccess, disabled }) => {
     setLoading(true);
 
     try {
-      const { data } = await api.post("/create-payment-intent", {
-        amount: amount * 100, // cents
-        email,
-      });
+      const { clientSecret, legacy } = await createIntent();
 
-      const result = await stripe.confirmCardPayment(data.clientSecret, {
+      const result = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),
           billing_details: { email },
@@ -41,14 +44,12 @@ const CheckoutForm = ({ amount, email, onSuccess, disabled }) => {
       });
 
       if (result.error) {
-        flash.show(result.error.message, "error", 3000);
+        flash.show(result.error.message, "error", 4000);
       } else if (result.paymentIntent.status === "succeeded") {
-        flash.show("Payment successful", "success", 2000);
-        onSuccess(result.paymentIntent);
+        onSuccess({ legacy, paymentIntent: result.paymentIntent });
       }
     } catch (error) {
-      console.error("Payment error:", error);
-      flash.show("An error occurred while processing the payment.", "error", 3000);
+      flash.show(getErrorMessage(error, t("booking.paymentError")), "error", 4000);
     } finally {
       setLoading(false);
     }
@@ -57,13 +58,13 @@ const CheckoutForm = ({ amount, email, onSuccess, disabled }) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <p className="mb-2 text-[13px] font-semibold text-ink-700">Card details</p>
+        <p className="mb-2 text-[13px] font-semibold text-ink-700">{t("booking.cardDetails")}</p>
         <div className="rounded-2xl bg-white px-4 py-4 ring-1 ring-inset ring-ink-200 transition focus-within:ring-2 focus-within:ring-primary-500">
           <CardElement options={cardStyle} />
         </div>
       </div>
       <Button type="submit" size="lg" className="w-full" loading={loading} disabled={!stripe || disabled}>
-        {!loading && <FiLock className="size-4" />} Pay ${amount.toLocaleString()}
+        {!loading && <FiLock className="size-4" />} {t("booking.pay", { amount: amount.toLocaleString() })}
       </Button>
     </form>
   );

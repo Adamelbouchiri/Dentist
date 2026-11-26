@@ -1,6 +1,20 @@
 import axios from "axios";
 
-export const BASE_URL = "http://127.0.0.1:8000";
+export const BASE_URL = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
+
+/** True when the API answered 404/405 — i.e. the endpoint isn't implemented yet. */
+export const isMissingEndpoint = (error) => [404, 405].includes(error?.response?.status);
+
+/** GET that resolves to `fallback` when the endpoint doesn't exist yet. */
+export const getWithFallback = async (url, fallback, config) => {
+  try {
+    const { data } = await api.get(url, config);
+    return data;
+  } catch (error) {
+    if (isMissingEndpoint(error)) return typeof fallback === "function" ? fallback() : fallback;
+    throw error;
+  }
+};
 
 export const getStoredToken = () =>
   localStorage.getItem("token") || sessionStorage.getItem("token");

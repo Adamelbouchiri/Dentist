@@ -13,6 +13,8 @@ export const PageLoader = ({ className = "h-screen" }) => (
       <span className="absolute inset-0 rounded-full border border-primary-200" />
       <img src="/images/logo-icon.png" alt="" className="relative size-7" />
     </div>
-    <span className="text-xs tracking-[0.3em] uppercase text-ink-400">Loading</span>
+    <span className="sr-only" role="status">
+      Loading
+    </span>
   </div>
 );

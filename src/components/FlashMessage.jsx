@@ -40,7 +40,7 @@ const FlashMessage = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -16, scale: 0.98 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="pointer-events-auto relative flex w-full max-w-md items-center gap-3 overflow-hidden rounded-2xl bg-white/95 py-3 pl-3 pr-10 shadow-[0_20px_50px_-15px_rgb(11_10_26/0.3)] ring-1 ring-ink-200/70 backdrop-blur"
+            className="pointer-events-auto relative flex w-full max-w-md items-center gap-3 overflow-hidden rounded-2xl bg-white/95 py-3 pe-10 ps-3 shadow-[0_20px_50px_-15px_rgb(11_10_26/0.3)] ring-1 ring-ink-200/70 backdrop-blur"
           >
             <span className={`grid size-8 shrink-0 place-items-center rounded-xl ${tone.chip}`}>
               <Icon className="size-4" />
@@ -48,13 +48,13 @@ const FlashMessage = () => {
             <span className="text-sm font-medium text-ink-800">{message.text}</span>
             <button
               onClick={() => setMessage(null)}
-              aria-label="Dismiss"
-              className="absolute right-3 rounded-full p-1 text-ink-400 hover:bg-ink-100 hover:text-ink-700"
+              aria-label="×"
+              className="absolute end-3 rounded-full p-1 text-ink-400 hover:bg-ink-100 hover:text-ink-700"
             >
               <FiX className="size-3.5" />
             </button>
             <motion.span
-              className={`absolute bottom-0 left-0 h-0.5 ${tone.bar}`}
+              className={`absolute bottom-0 start-0 h-0.5 ${tone.bar}`}
               initial={{ width: "100%" }}
               animate={{ width: 0 }}
               transition={{ duration: (message.duration || 3000) / 1000, ease: "linear" }}

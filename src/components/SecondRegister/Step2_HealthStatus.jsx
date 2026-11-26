@@ -1,19 +1,15 @@
 import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Field";
-import { ChoiceCard, StepTitle } from "./ChoiceCard";
+import { ChoiceCard, StepTitle, useAnswerLabel } from "./ChoiceCard";
 
-const conditions = [
-  "Diabetes",
-  "High Blood Pressure",
-  "Heart Conditions",
-  "Asthma",
-  "Blood Thinners",
-  "Allergies",
-  "None",
-];
+const conditions = ["Diabetes", "High Blood Pressure", "Heart Conditions", "Asthma", "Blood Thinners", "Allergies", "None"];
 
 export default function Step2({ formData, updateData, nextStep, prevStep }) {
+  const { t } = useTranslation();
+  const label = useAnswerLabel();
+
   // "None" is exclusive: picking it clears the rest, picking a condition clears "None".
   const toggleCondition = (condition) => {
     const current = formData.medicalHistory;
@@ -31,22 +27,22 @@ export default function Step2({ formData, updateData, nextStep, prevStep }) {
     <div className="space-y-12">
       <div className="grid gap-12 lg:grid-cols-2">
         <section>
-          <StepTitle index={1}>Do you have dental insurance?</StepTitle>
+          <StepTitle index={1}>{t("onboarding.insurance")}</StepTitle>
           <div className="grid grid-cols-2 gap-3">
             {["Yes", "No"].map((val) => (
               <ChoiceCard key={val} selected={formData.insurance === val} onClick={() => updateData({ insurance: val })}>
-                {val}
+                {label(val)}
               </ChoiceCard>
             ))}
           </div>
         </section>
 
         <section>
-          <StepTitle index={2}>Currently taking medication?</StepTitle>
+          <StepTitle index={2}>{t("onboarding.medication")}</StepTitle>
           <div className="grid grid-cols-2 gap-3">
             {["Yes", "No"].map((val) => (
               <ChoiceCard key={val} selected={formData.medication === val} onClick={() => updateData({ medication: val })}>
-                {val}
+                {label(val)}
               </ChoiceCard>
             ))}
           </div>
@@ -55,28 +51,28 @@ export default function Step2({ formData, updateData, nextStep, prevStep }) {
 
       {formData.medication === "Yes" && (
         <Input
-          label="Medication name"
-          placeholder="e.g. Ibuprofen 200mg"
+          label={t("onboarding.medicationName")}
+          placeholder={t("onboarding.medicationPlaceholder")}
           value={formData.medicationName}
           onChange={(e) => updateData({ medicationName: e.target.value })}
         />
       )}
 
       <section>
-        <StepTitle index={3} hint="Select all that apply.">
-          Medical history
+        <StepTitle index={3} hint={t("onboarding.selectAll")}>
+          {t("onboarding.history")}
         </StepTitle>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {conditions.map((c) => (
             <ChoiceCard key={c} selected={formData.medicalHistory.includes(c)} onClick={() => toggleCondition(c)}>
-              {c}
+              {label(c)}
             </ChoiceCard>
           ))}
         </div>
         <Input
           className="mt-5"
-          label="Other conditions"
-          placeholder="Anything else we should know"
+          label={t("profile.otherConditions")}
+          placeholder={t("onboarding.otherPlaceholder")}
           value={formData.otherCondition}
           onChange={(e) => updateData({ otherCondition: e.target.value })}
         />
@@ -84,10 +80,10 @@ export default function Step2({ formData, updateData, nextStep, prevStep }) {
 
       <div className="flex justify-between border-t border-ink-200/70 pt-8">
         <Button onClick={prevStep} variant="outline" size="lg">
-          <FiArrowLeft /> Back
+          <FiArrowLeft className="rtl:rotate-180" /> {t("common.back")}
         </Button>
         <Button onClick={nextStep} disabled={!canContinue} size="lg">
-          Continue <FiArrowRight />
+          {t("common.continue")} <FiArrowRight className="rtl:rotate-180" />
         </Button>
       </div>
     </div>

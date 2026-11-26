@@ -12,6 +12,10 @@
     "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5588.412155722465!2d-7.634610083761219!3d33.608164985823414!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xda7d2607994d58f%3A0x67a1d618e7b0d072!2sMosqu%C3%A9e%20Hassan-II!5e0!3m2!1sfr!2sma!4v1749063889355!5m2!1sfr!2sma",
 };
 
+// Fallback 30-minute slots when /availability isn't implemented.
+export const defaultTimeSlots = ["09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "14:00", "14:30", "15:00", "15:30", "16:00"];
+
+// Static fallbacks — used until GET /services and GET /doctors exist (see docs/API_SPEC.md).
 // `name` values are sent to the API as the appointment `service` — keep them stable.
 export const services = [
   {
@@ -88,17 +92,21 @@ export const testimonials = [
     name: "Sarah M.",
     title: "Product designer",
     image: "/images/testimonials-1.png",
+    crop: true,
+    key: "p1",
   },
   {
     quote:
       "From the welcome at the front desk to the follow-up call, everything felt considered. My whitening results exceeded every expectation.",
     name: "Yasmine B.",
     title: "Architect",
+    key: "p2",
   },
   {
     quote:
       "I came in with a cracked tooth on a Saturday and left without pain an hour later. Calm, precise and genuinely caring people.",
     name: "Karim E.",
     title: "Entrepreneur",
+    key: "p3",
   },
 ];

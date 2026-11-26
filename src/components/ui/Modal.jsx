@@ -1,13 +1,23 @@
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FiX } from "react-icons/fi";
+import { useTranslation } from "react-i18next";
 
-export const Modal = ({ open, onClose, title, description, icon: Icon, tone = "primary", children, footer }) => {
+const sizes = { md: "max-w-md", lg: "max-w-xl", xl: "max-w-2xl" };
+
+export const Modal = ({ open, onClose, title, description, icon: Icon, tone = "primary", size = "md", children, footer }) => {
+  const { t } = useTranslation();
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === "Escape" && onClose?.();
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
   }, [open, onClose]);
 
   return (
@@ -24,7 +34,7 @@ export const Modal = ({ open, onClose, title, description, icon: Icon, tone = "p
           <motion.div
             role="dialog"
             aria-modal="true"
-            className="relative w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl ring-1 ring-ink-200/60"
+            className={`relative max-h-[92vh] w-full overflow-y-auto rounded-3xl bg-white p-7 shadow-2xl ring-1 ring-ink-200/60 ${sizes[size]}`}
             initial={{ opacity: 0, y: 24, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
@@ -32,8 +42,8 @@ export const Modal = ({ open, onClose, title, description, icon: Icon, tone = "p
           >
             <button
               onClick={onClose}
-              aria-label="Close"
-              className="absolute right-4 top-4 rounded-full p-2 text-ink-400 transition hover:bg-ink-100 hover:text-ink-900"
+              aria-label={t("common.close")}
+              className="absolute end-4 top-4 rounded-full p-2 text-ink-400 transition hover:bg-ink-100 hover:text-ink-900"
             >
               <FiX className="size-4" />
             </button>
@@ -46,10 +56,10 @@ export const Modal = ({ open, onClose, title, description, icon: Icon, tone = "p
                 <Icon className="size-5" />
               </div>
             )}
-            {title && <h3 className="text-xl font-semibold tracking-tight text-ink-900">{title}</h3>}
+            {title && <h3 className="pe-8 text-xl font-semibold tracking-tight text-ink-900">{title}</h3>}
             {description && <p className="mt-1.5 text-sm leading-relaxed text-ink-500">{description}</p>}
             {children && <div className="mt-6">{children}</div>}
-            {footer && <div className="mt-7 flex justify-end gap-2">{footer}</div>}
+            {footer && <div className="mt-7 flex flex-wrap justify-end gap-2">{footer}</div>}
           </motion.div>
         </div>
       )}
