@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { api, getWithFallback } from "../lib/api";
+import { api, avatarUrl, getWithFallback } from "../lib/api";
 import { queryKeys } from "../lib/queryClient";
 import {
   doctors as staticDoctors,
@@ -64,7 +64,7 @@ export const usePublicReviews = () =>
         quote: r.comment,
         name: r.user?.name ?? "Patient",
         title: r.service ?? "Patient",
-        image: r.user?.avatar ?? null,
+        image: avatarUrl(r.user?.avatar),
         rating: r.rating,
       }));
     },

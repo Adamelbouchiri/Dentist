@@ -4,6 +4,7 @@ import { FaFacebook } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { doctors } from "../../data/clinic";
 import { Logo } from "../ui/Misc";
+import { DoctorPhoto } from "../ui/DoctorPhoto";
 import { LanguageSwitcher } from "../ui/LanguageSwitcher";
 import { api } from "../../lib/api";
 
@@ -81,7 +82,7 @@ export const AuthLayout = ({ title, accent, subtitle, children, footer }) => {
             <div className="glass flex items-center gap-3 rounded-2xl p-3 pe-5 text-ink-900 ring-1 ring-white/60">
               <div className="flex -space-x-2.5 rtl:space-x-reverse">
                 {doctors.map((d) => (
-                  <img key={d.id} src={d.image} alt="" className="size-9 rounded-full object-cover object-top ring-2 ring-white" />
+                  <DoctorPhoto key={d.id} doctor={d} iconClassName="size-1/2" className="size-9 rounded-full object-cover object-top ring-2 ring-white" />
                 ))}
               </div>
               <div>

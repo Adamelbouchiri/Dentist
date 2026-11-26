@@ -17,6 +17,7 @@ import { Avatar, Logo } from "../components/ui/Misc";
 import { Button } from "../components/ui/Button";
 import { LanguageSwitcher } from "../components/ui/LanguageSwitcher";
 import { PageLoader } from "../components/ui/Spinner";
+import { DoctorPhoto } from "../components/ui/DoctorPhoto";
 
 const Step = ({ n, title, subtitle, children }) => (
   <section className="rounded-[32px] bg-white p-6 shadow-soft ring-1 ring-ink-200/70 md:p-8">
@@ -204,13 +205,12 @@ export const CreateAppointments = () => {
                       }`}
                     >
                       <div className="aspect-[4/3] overflow-hidden bg-ink-100">
-                        {d.image && (
-                          <img
-                            src={d.image}
-                            alt={d.name}
-                            className="size-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                          />
-                        )}
+                        <DoctorPhoto
+                          doctor={d}
+                          alt={d.name}
+                          iconClassName="size-2/5"
+                          className="size-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                        />
                       </div>
                       <div className="flex items-start justify-between gap-2 bg-white p-4">
                         <div>

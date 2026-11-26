@@ -4,6 +4,7 @@ import { FaInstagram, FaFacebookF } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { useTranslation } from "react-i18next";
 import { Button } from "../ui/Button";
+import { DoctorPhoto } from "../ui/DoctorPhoto";
 import { useDoctors } from "../../hooks/useCatalog";
 
 const ease = [0.22, 1, 0.36, 1];
@@ -103,7 +104,7 @@ export const Hero = () => {
           <div className="col-span-2 flex items-center gap-4 bg-ink-950/20 px-5 py-4 md:col-span-1 md:px-6">
             <div className="flex -space-x-3 rtl:space-x-reverse">
               {doctors.slice(0, 4).map((d) => (
-                <img key={d.id} src={d.image} alt="" className="size-10 rounded-full object-cover object-top ring-2 ring-ink-900" />
+                <DoctorPhoto key={d.id} doctor={d} iconClassName="size-1/2" className="size-10 rounded-full object-cover object-top ring-2 ring-ink-900" />
               ))}
             </div>
             <div className="text-start">

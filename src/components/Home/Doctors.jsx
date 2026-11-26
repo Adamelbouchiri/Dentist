@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { clinic } from "../../data/clinic";
 import { useDoctors } from "../../hooks/useCatalog";
 import { SectionHeading } from "../ui/Misc";
+import { DoctorPhoto } from "../ui/DoctorPhoto";
 
 export const Doctors = () => {
   const { t } = useTranslation();
@@ -17,14 +18,13 @@ export const Doctors = () => {
       <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {doctors.map((d) => (
           <article key={d.id} className="group relative aspect-[3/4] overflow-hidden rounded-[32px] bg-ink-100">
-            {d.image && (
-              <img
-                src={d.image}
-                alt={d.name}
-                loading="lazy"
-                className="absolute inset-0 size-full object-cover object-top transition-transform duration-[1.2s] ease-[var(--ease-luxe)] group-hover:scale-105"
-              />
-            )}
+            <DoctorPhoto
+              doctor={d}
+              alt={d.name}
+              loading="lazy"
+              iconClassName="mb-24 size-1/3"
+              className="absolute inset-0 size-full object-cover object-top transition-transform duration-[1.2s] ease-[var(--ease-luxe)] group-hover:scale-105"
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-ink-950/70 via-ink-950/0 to-transparent" />
 
             <span className="glass absolute start-4 top-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold text-ink-900 ring-1 ring-white/60">

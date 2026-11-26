@@ -17,6 +17,7 @@ import { Button } from "../components/ui/Button";
 import { Input, Label, Switch, Textarea } from "../components/ui/Field";
 import { Badge, EmptyState, NotImplemented } from "../components/ui/Misc";
 import { Modal } from "../components/ui/Modal";
+import { DoctorPhoto } from "../components/ui/DoctorPhoto";
 import { PageLoader } from "../components/ui/Spinner";
 
 const serviceSchema = z.object({
@@ -262,7 +263,7 @@ export const AdminCatalog = () => {
           {list.map((d) => (
             <article key={d.id} className="flex gap-4 rounded-3xl bg-white p-4 shadow-soft ring-1 ring-ink-200/70">
               <div className="size-24 shrink-0 overflow-hidden rounded-2xl bg-ink-100">
-                {d.image && <img src={d.image} alt="" className="size-full object-cover object-top" />}
+                <DoctorPhoto doctor={d} iconClassName="size-1/2" className="size-full object-cover object-top" />
               </div>
               <div className="flex min-w-0 flex-1 flex-col">
                 <div className="flex items-start justify-between gap-2">
