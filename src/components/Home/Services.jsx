@@ -2,12 +2,14 @@ import { Link } from "react-router-dom";
 import { FiArrowUpRight } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { useServices } from "../../hooks/useCatalog";
+import { useMoney } from "../../hooks/useMoney";
 import { Button } from "../ui/Button";
 import { SectionHeading } from "../ui/Misc";
 
 export const Services = () => {
   const { t } = useTranslation();
   const { data: services = [] } = useServices();
+  const { money } = useMoney();
 
   return (
     <section id="services" className="scroll-mt-24">
@@ -51,7 +53,7 @@ export const Services = () => {
               <div className="mt-auto flex items-center justify-between pt-8">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-400">{t("services.from")}</p>
-                  <p className="text-lg font-semibold text-ink-900">${s.price.toLocaleString()}</p>
+                  <p className="text-lg font-semibold text-ink-900">{money(s.price)}</p>
                 </div>
                 <Link
                   to="/create-appointments"

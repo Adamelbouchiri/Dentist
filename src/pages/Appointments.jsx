@@ -23,6 +23,7 @@ import {
 } from "../hooks/useAppointments";
 import { useDoctors } from "../hooks/useCatalog";
 import { usePageMeta } from "../hooks/usePageMeta";
+import { useMoney } from "../hooks/useMoney";
 import { getErrorMessage, isMissingEndpoint, toLocalISODate } from "../lib/api";
 import { downloadInvoice } from "../lib/invoice";
 import { flash } from "../utils/flash";
@@ -60,6 +61,7 @@ const ActionButton = ({ icon: Icon, children, tone = "default", ...props }) => (
 
 const AppointmentCard = ({ appt, onCancel, onReschedule, onReview, onInvoice, onDelete }) => {
   const { t, i18n } = useTranslation();
+  const { money } = useMoney();
   const date = parseDate(appt.date);
   const locale = i18n.language;
   const changeable = canChange(appt);
@@ -86,7 +88,7 @@ const AppointmentCard = ({ appt, onCancel, onReschedule, onReview, onInvoice, on
                 <FiUser className="size-3.5" /> {appt.doctor}
               </p>
             </div>
-            <span className="text-lg font-semibold tracking-tight text-ink-900">${appt.price}</span>
+            <span className="text-lg font-semibold tracking-tight text-ink-900">{money(appt.price)}</span>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1 text-xs font-semibold text-ink-600 ring-1 ring-ink-100">

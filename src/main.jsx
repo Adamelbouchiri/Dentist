@@ -5,13 +5,16 @@ import "./i18n";
 import "./index.css";
 import App from "./App.jsx";
 import { AppProvider } from "./context/AppProvider.jsx";
+import { CurrencyProvider } from "./context/CurrencyProvider.jsx";
 import { queryClient } from "./lib/queryClient.js";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <AppProvider>
-        <App />
+        <CurrencyProvider>
+          <App />
+        </CurrencyProvider>
       </AppProvider>
     </QueryClientProvider>
   </StrictMode>

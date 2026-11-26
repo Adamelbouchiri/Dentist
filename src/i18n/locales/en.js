@@ -381,7 +381,8 @@ const en = {
     payByCard: "Pay by card",
     payInPerson: "Pay in person",
     cardDetails: "Card details",
-    pay: "Pay ${{amount}}",
+    pay: "Pay {{amount}}",
+    chargedIn: "Card payments are charged in US dollars: {{amount}}.",
     payAtClinic: "Pay at the clinic",
     payAtClinicHint: "Cash, credit/debit card or insurance (if applicable) on the day of your visit.",
     confirm: "Confirm appointment",
@@ -692,6 +693,11 @@ const en = {
     deleteBody: "Existing appointments are kept, but it can no longer be booked.",
   },
 
+  currency: {
+    label: "Currency",
+    updated: "Exchange rates updated {{date}}",
+    names: { USD: "US dollar", MAD: "Moroccan dirham", EUR: "Euro", SAR: "Saudi riyal", AED: "UAE dirham" },
+  },
   notFound: {
     title: "Page not found",
     text: "The page you're looking for doesn't exist or has moved.",

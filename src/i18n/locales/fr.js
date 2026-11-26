@@ -381,7 +381,8 @@ const fr = {
     payByCard: "Payer par carte",
     payInPerson: "Payer sur place",
     cardDetails: "Informations de carte",
-    pay: "Payer {{amount}} $",
+    pay: "Payer {{amount}}",
+    chargedIn: "Les paiements par carte sont débités en dollars américains : {{amount}}.",
     payAtClinic: "Payer à la clinique",
     payAtClinicHint: "Espèces, carte bancaire ou assurance (le cas échéant) le jour de votre visite.",
     confirm: "Confirmer le rendez-vous",
@@ -692,6 +693,11 @@ const fr = {
     deleteBody: "Les rendez-vous existants sont conservés, mais il ne pourra plus être réservé.",
   },
 
+  currency: {
+    label: "Devise",
+    updated: "Taux de change mis à jour le {{date}}",
+    names: { USD: "Dollar américain", MAD: "Dirham marocain", EUR: "Euro", SAR: "Riyal saoudien", AED: "Dirham des Émirats" },
+  },
   notFound: {
     title: "Page introuvable",
     text: "La page que vous recherchez n'existe pas ou a été déplacée.",

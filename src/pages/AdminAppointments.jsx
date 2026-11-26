@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 
 import { useAdminAppointments, useDeleteAdminAppointment, useUpdateAdminAppointment } from "../hooks/useAdmin";
 import { usePageMeta } from "../hooks/usePageMeta";
+import { useMoney } from "../hooks/useMoney";
 import { getErrorMessage } from "../lib/api";
 import { flash } from "../utils/flash";
 import { PageHeader } from "../components/dashboard/DashboardShell";
@@ -19,6 +20,7 @@ const STATUSES = ["pending", "scheduled", "upcoming", "confirmed", "completed", 
 
 export const AdminAppointments = () => {
   const { t } = useTranslation();
+  const { money } = useMoney();
   usePageMeta(t("nav.appointments"));
 
   const [filter, setFilter] = useState("today");
@@ -138,7 +140,7 @@ export const AdminAppointments = () => {
                 <td className="px-5 py-4">
                   <Badge value={a.payment_status} />
                 </td>
-                <td className="px-5 py-4 text-end font-semibold text-ink-900">${a.price}</td>
+                <td className="whitespace-nowrap px-5 py-4 text-end font-semibold text-ink-900">{money(a.price)}</td>
                 <td className="px-5 py-4">
                   <div className="flex justify-end gap-1">
                     <button

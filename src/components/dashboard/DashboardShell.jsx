@@ -11,6 +11,7 @@ import { flash } from "../../utils/flash";
 import { Avatar, Logo } from "../ui/Misc";
 import { Button } from "../ui/Button";
 import { LanguageSwitcher } from "../ui/LanguageSwitcher";
+import { CurrencySwitcher } from "../ui/CurrencySwitcher";
 
 /**
  * Shared layout for the patient and admin areas.
@@ -185,7 +186,8 @@ export const DashboardShell = ({ role, items, label }) => {
               <h1 className="text-lg font-semibold tracking-tight text-ink-900 sm:text-xl">{current?.label}</h1>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <CurrencySwitcher />
             <LanguageSwitcher />
             <p className="hidden text-end text-sm text-ink-500 md:block">
               {t("dashboard.hello")} <span className="font-semibold text-ink-900">{user.name?.split(" ")[0]}</span>

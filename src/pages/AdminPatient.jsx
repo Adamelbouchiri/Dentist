@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 
 import { useAddPatientNote, useAdminUser, useDeletePatientNote } from "../hooks/useAdmin";
 import { usePageMeta } from "../hooks/usePageMeta";
+import { useMoney } from "../hooks/useMoney";
 import { getErrorMessage } from "../lib/api";
 import { flash } from "../utils/flash";
 import { ProfileHeader } from "../components/dashboard/ProfileHeader";
@@ -23,6 +24,7 @@ export const AdminPatient = () => {
   const [note, setNote] = useState("");
   usePageMeta(data?.user?.name ?? t("nav.patients"));
   const locale = i18n.language;
+  const { money } = useMoney();
 
   const back = (
     <Link to="/admin/dashboard/users" className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-ink-500 hover:text-ink-900">
@@ -71,7 +73,7 @@ export const AdminPatient = () => {
               <p className="text-[13px] text-ink-400">{t("patient.visits")}</p>
             </div>
             <div>
-              <p className="text-2xl font-semibold tracking-tight text-ink-900">${spent.toLocaleString(locale)}</p>
+              <p className="text-2xl font-semibold tracking-tight text-ink-900">{money(spent)}</p>
               <p className="text-[13px] text-ink-400">{t("patient.paid")}</p>
             </div>
           </div>
@@ -102,7 +104,7 @@ export const AdminPatient = () => {
                       {a.service} · {a.doctor}
                     </span>
                     <Badge value={a.status} />
-                    <span className="w-16 text-end text-sm font-semibold text-ink-900">${a.price}</span>
+                    <span className="min-w-16 whitespace-nowrap text-end text-sm font-semibold text-ink-900">{money(a.price)}</span>
                   </li>
                 ))}
               </ul>

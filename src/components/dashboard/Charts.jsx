@@ -67,7 +67,7 @@ export const TrendChart = ({ data, xKey, yKey, format, labelFormat, tickFormat, 
 );
 
 /** Magnitude per category (revenue per month, vertical) or ranking (services, horizontal). */
-export const BarsChart = ({ data, xKey, yKey, format, labelFormat, tickFormat, horizontal = false, height = 240 }) => (
+export const BarsChart = ({ data, xKey, yKey, format, axisFormat = format, labelFormat, tickFormat, horizontal = false, height = 240 }) => (
   <div dir="ltr" style={{ height }}>
     <ResponsiveContainer>
       <BarChart
@@ -79,13 +79,13 @@ export const BarsChart = ({ data, xKey, yKey, format, labelFormat, tickFormat, h
         <CartesianGrid horizontal={!horizontal} vertical={horizontal} stroke={GRID} />
         {horizontal ? (
           <>
-            <XAxis type="number" {...axisProps} allowDecimals={false} tickFormatter={format} />
+            <XAxis type="number" {...axisProps} allowDecimals={false} tickFormatter={axisFormat} />
             <YAxis type="category" dataKey={xKey} {...axisProps} width={140} tick={{ fill: "#45455c", fontSize: 12 }} />
           </>
         ) : (
           <>
             <XAxis dataKey={xKey} {...axisProps} tickFormatter={tickFormat} />
-            <YAxis {...axisProps} width={56} tickFormatter={format} />
+            <YAxis {...axisProps} width={64} tickFormatter={axisFormat} />
           </>
         )}
         <Tooltip cursor={{ fill: "rgb(56 2 255 / 0.05)" }} content={<ChartTooltip format={format} labelFormat={labelFormat} />} />

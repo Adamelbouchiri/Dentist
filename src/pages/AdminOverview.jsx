@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { useAdminStats } from "../hooks/useAdmin";
 import { usePageMeta } from "../hooks/usePageMeta";
+import { useMoney } from "../hooks/useMoney";
 import { PageHeader } from "../components/dashboard/DashboardShell";
 import { BarsChart, TrendChart } from "../components/dashboard/Charts";
 import { Badge, Card, NotImplemented } from "../components/ui/Misc";
@@ -54,10 +55,10 @@ export const AdminOverview = () => {
   usePageMeta(t("nav.overview"));
   const { data: stats, isPending } = useAdminStats();
   const locale = i18n.language;
+  const { money } = useMoney();
 
   if (isPending) return <PageLoader className="h-[60vh]" />;
 
-  const money = (v) => `$${Number(v || 0).toLocaleString(locale)}`;
   const shortDate = (d) => new Date(`${d}T00:00:00`).toLocaleDateString(locale, { day: "numeric", month: "short" });
   const longDate = (d) => new Date(`${d}T00:00:00`).toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" });
   const monthLabel = (m) => new Date(`${m}-01T00:00:00`).toLocaleDateString(locale, { month: "short" });
@@ -104,7 +105,8 @@ export const AdminOverview = () => {
                 yKey="revenue"
                 tickFormat={monthLabel}
                 labelFormat={monthLong}
-                format={money}
+                format={(v) => money(v)}
+                axisFormat={(v) => money(v, { compact: true })}
               />
             </ChartCard>
           </div>

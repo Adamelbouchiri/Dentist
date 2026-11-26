@@ -18,6 +18,8 @@ import { Button } from "../components/ui/Button";
 import { LanguageSwitcher } from "../components/ui/LanguageSwitcher";
 import { PageLoader } from "../components/ui/Spinner";
 import { DoctorPhoto } from "../components/ui/DoctorPhoto";
+import { CurrencySwitcher } from "../components/ui/CurrencySwitcher";
+import { useMoney } from "../hooks/useMoney";
 
 const Step = ({ n, title, subtitle, children }) => (
   <section className="rounded-[32px] bg-white p-6 shadow-soft ring-1 ring-ink-200/70 md:p-8">
@@ -61,6 +63,7 @@ export const CreateAppointments = () => {
   const startCheckout = useStartCheckout();
   const { data: services = [], isPending: servicesLoading } = useServices();
   const { data: doctors = [] } = useDoctors();
+  const { money } = useMoney();
 
   const [serviceId, setServiceId] = useState(null);
   const [doctorId, setDoctorId] = useState(null);
@@ -136,6 +139,7 @@ export const CreateAppointments = () => {
         <div className="mx-auto flex max-w-[1360px] items-center justify-between gap-4 px-5 py-4 md:px-8">
           <Logo className="h-10" />
           <div className="flex items-center gap-2">
+            <CurrencySwitcher />
             <LanguageSwitcher />
             <Link
               to="/user/dashboard/appointments"
@@ -181,7 +185,7 @@ export const CreateAppointments = () => {
                         <span className="block text-[13px] text-ink-400">{t(`services.${s.slug}.duration`, s.duration)}</span>
                       </span>
                       <span className={`text-sm font-semibold ${selected ? "text-primary-600" : "text-ink-900"}`}>
-                        ${s.price.toLocaleString()}
+                        {money(s.price)}
                       </span>
                     </button>
                   );
@@ -259,7 +263,7 @@ export const CreateAppointments = () => {
                   {service && t(`services.${service.slug}.name`, service.name)}
                 </p>
                 <p className="relative mt-4 flex items-baseline gap-1 text-4xl font-semibold tracking-tight">
-                  ${service?.price.toLocaleString()}
+                  {service && money(service.price)}
                   <span className="text-sm font-normal text-white/50">{t("booking.total")}</span>
                 </p>
               </div>

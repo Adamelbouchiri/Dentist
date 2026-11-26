@@ -3,6 +3,7 @@ import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { FiLock } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { getErrorMessage } from "../../lib/api";
+import { useMoney } from "../../hooks/useMoney";
 import { flash } from "../../utils/flash";
 import { Button } from "../ui/Button";
 
@@ -24,6 +25,7 @@ const cardStyle = {
  */
 const CheckoutForm = ({ amount, email, createIntent, onSuccess, disabled }) => {
   const { t } = useTranslation();
+  const { base, converted } = useMoney();
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -64,8 +66,11 @@ const CheckoutForm = ({ amount, email, createIntent, onSuccess, disabled }) => {
         </div>
       </div>
       <Button type="submit" size="lg" className="w-full" loading={loading} disabled={!stripe || disabled}>
-        {!loading && <FiLock className="size-4" />} {t("booking.pay", { amount: amount.toLocaleString() })}
+        {!loading && <FiLock className="size-4" />} {t("booking.pay", { amount: base(amount) })}
       </Button>
+      {converted && (
+        <p className="text-center text-[12px] leading-snug text-ink-400">{t("booking.chargedIn", { amount: base(amount) })}</p>
+      )}
     </form>
   );
 };

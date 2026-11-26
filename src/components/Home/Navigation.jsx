@@ -9,6 +9,7 @@ import AppContext from "../../context/AppProvider";
 import { Button } from "../ui/Button";
 import { Avatar, Logo } from "../ui/Misc";
 import { LanguageSwitcher } from "../ui/LanguageSwitcher";
+import { CurrencySwitcher } from "../ui/CurrencySwitcher";
 
 const sectionIds = ["home", "services", "about", "dentists", "reviews", "contact"];
 
@@ -114,6 +115,7 @@ export const Navigation = () => {
         </ul>
 
         <div className="hidden items-center gap-2 lg:flex">
+          <CurrencySwitcher />
           <LanguageSwitcher />
           {user ? (
             <Link
@@ -135,6 +137,7 @@ export const Navigation = () => {
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
+          <CurrencySwitcher />
           <LanguageSwitcher />
           <button
             onClick={() => setIsOpen(true)}
