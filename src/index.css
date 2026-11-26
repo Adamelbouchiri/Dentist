@@ -1,18 +1,69 @@
-@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Outfit:wght@100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
 
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------ */
+/*  Design tokens — Doctor Bennani visual identity                      */
+/*  Brand: electric indigo #3802ff → cyan #04b7fe                       */
+/* ------------------------------------------------------------------ */
 @theme {
-  --color-primary-500: #3802ff;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
 
+  --color-primary-50: #f3f0ff;
+  --color-primary-100: #e7e0ff;
+  --color-primary-200: #d0c2ff;
+  --color-primary-300: #a993ff;
+  --color-primary-400: #7a55ff;
+  --color-primary-500: #3802ff;
+  --color-primary-600: #2f00e0;
+  --color-primary-700: #2600b5;
+  --color-primary-800: #1d008a;
+  --color-primary-900: #14005e;
+
+  --color-accent-50: #ecfaff;
+  --color-accent-100: #d3f3ff;
+  --color-accent-200: #a8e7ff;
+  --color-accent-300: #6dd7ff;
+  --color-accent-400: #2bc6ff;
   --color-accent-500: #04b7fe;
+  --color-accent-600: #0092cc;
+
+  /* deep ink used for luxury dark surfaces */
+  --color-ink-50: #f6f6fa;
+  --color-ink-100: #ececf3;
+  --color-ink-200: #d9d9e6;
+  --color-ink-300: #b4b4c8;
+  --color-ink-400: #8a8aa3;
+  --color-ink-500: #62627c;
+  --color-ink-600: #45455c;
+  --color-ink-700: #2c2c40;
+  --color-ink-800: #18182a;
+  --color-ink-900: #0b0a1a;
+  --color-ink-950: #06050f;
+
+  --color-ivory: #fbfaf8;
+
+  --shadow-soft: 0 1px 2px rgb(11 10 26 / 0.04), 0 8px 24px -12px rgb(11 10 26 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(11 10 26 / 0.04), 0 24px 48px -20px rgb(56 2 255 / 0.25);
+  --shadow-glow: 0 10px 40px -10px rgb(56 2 255 / 0.55);
+
+  --ease-luxe: cubic-bezier(0.22, 1, 0.36, 1);
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(300%);
+    }
+  }
 
   --gradient-primary: linear-gradient(
     to right,
     var(--color-primary-500),
     var(--color-accent-500)
   );
-
   --gradient-primary-to-b: linear-gradient(
     to bottom,
     var(--color-primary-500),
@@ -20,80 +71,110 @@
   );
 }
 
-html {
-  scroll-behavior: smooth;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-ivory);
+    color: var(--color-ink-900);
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  ::selection {
+    background: var(--color-primary-500);
+    color: white;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+  }
 }
 
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: "Plus Jakarta Sans", sans-serif;
-}
-
-.gradient-primary {
+/* Custom utilities (declared with @utility so variants like hover: work) */
+@utility gradient-primary {
   background-image: var(--gradient-primary);
 }
 
-.gradient-primary-to-b {
+@utility gradient-primary-to-b {
   background-image: var(--gradient-primary-to-b);
 }
 
-.hero {
+@utility text-gradient {
+  background-image: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* hairline gradient border (1px) around a rounded element */
+@utility border-gradient {
   position: relative;
-  background-image: url("/images/hero.jpg");
-  background-size: cover;
-  background-position: center;
-  overflow: hidden;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: var(--gradient-primary);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
 }
 
-.hero::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
+@utility glass {
+  background: rgb(255 255 255 / 0.72);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+
+@utility glass-dark {
+  background: rgb(11 10 26 / 0.45);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+
+/* soft dotted grid used as subtle texture */
+@utility bg-dots {
+  background-image: radial-gradient(rgb(56 2 255 / 0.12) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Swiper cards — keep the stacked cards soft */
+.swiper-cards .swiper-slide {
+  border-radius: 1.75rem;
+}
+
+/* Stripe card element */
+.StripeElement {
   width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.3);
-}
-
-.hero-heading::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  left: -20px;
-  width: 8px;
-  height: 8px;
-  background-color: white;
-  border-radius: 50%;
-}
-
-.hero-heading::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  right: -20px;
-  width: 8px;
-  height: 8px;
-  background-color: white;
-  border-radius: 50%;
-}
-
-.checked-box::after {
-  content: "\2714";
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  font-size: 12px;
-  color: white;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  background-color: var(--color-primary-500);
 }

@@ -52,14 +52,8 @@ function App() {
           <Route element={<GuestRoute />}>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route
-              path="/google-auth-success"
-              element={<GoogleAuthSuccess />}
-            />
-            <Route
-              path="/facebook-auth-success"
-              element={<FacebookAuthSuccess />}
-            />
+            <Route path="/google-auth-success" element={<GoogleAuthSuccess />} />
+            <Route path="/facebook-auth-success" element={<FacebookAuthSuccess />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
           </Route>

@@ -1,69 +1,50 @@
-import { IoMaleOutline } from "react-icons/io5";
-import { IoFemaleOutline } from "react-icons/io5";
-import { FaArrowRight } from "react-icons/fa";
+import { IoFemaleOutline, IoMaleOutline } from "react-icons/io5";
+import { FiArrowRight } from "react-icons/fi";
+import { Button } from "../ui/Button";
+import { ChoiceCard, StepTitle } from "./ChoiceCard";
 
-// Step1_GenderAge.jsx
+const ages = ["Under 18", "18 - 30", "30 - 40", "40 - 50", "50 - 60", "Above 60"];
+
 export default function Step1({ formData, updateData, nextStep }) {
-  
-  const Ages = ["Under 18", "18 - 30", "30 - 40", "40 - 50", "50 - 60", "Above 60"];
+  const canContinue = formData.gender && formData.ageRange;
 
   return (
-    <div className="flex flex-col items-center md:items-start">
-      <h2 className="text-2xl font-bold mb-8">What your gender ?</h2>
-      <div className="flex gap-4 mb-16">
-        {["Male", "Female"].map((gender) => (
-          <div
-            key={gender}
-            onClick={() => updateData({ gender })}
-            className={`relative p-4 rounded-lg border-2 w-32 h-32 flex flex-col items-center justify-center cursor-pointer bg-white font-bold text-lg ${
-              formData.gender === gender
-                ? "border-primary-500 text-primary-500 checked-box"
-                : "border-gray-200"
-            }`}
-          >
-            {gender === "Male" ? (
-              <span className="text-3xl mb-2">
-                <IoMaleOutline />
-              </span>
-            ) : (
-              <span className="text-3xl mb-2">
-                <IoFemaleOutline />
-              </span>
-            )}
-            {gender}
-          </div>
-        ))}
-      </div>
-
-      <h2 className="text-2xl font-bold mb-8">What is your age ?</h2>
-      <div className="flex justify-center md:justify-start gap-6 mb-8 flex-wrap">
-        {Ages.map(
-          (age) => (
-            <div
-              key={age}
-              onClick={() => updateData({ ageRange: age })}
-              className={`relative flex justify-center items-center w-32 h-32 lg:w-42 lg:h-42 p-4 rounded-lg border-2 bg-white font-bold text-lg cursor-pointer ${
-                formData.ageRange === age
-                  ? "border-primary-500 text-primary-500 checked-box"
-                  : "border-gray-200"
-              }`}
+    <div className="space-y-12">
+      <section>
+        <StepTitle index={1}>What is your gender?</StepTitle>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {[
+            { value: "Male", icon: <IoMaleOutline /> },
+            { value: "Female", icon: <IoFemaleOutline /> },
+          ].map((g) => (
+            <ChoiceCard
+              key={g.value}
+              icon={g.icon}
+              selected={formData.gender === g.value}
+              onClick={() => updateData({ gender: g.value })}
             >
-              {age}
-            </div>
-          )
-        )}
-      </div>
-
-      {formData.gender && formData.ageRange && (
-        <div className="flex self-end mt-10">
-          <button
-            onClick={nextStep}
-            className="bg-primary-500 text-white px-6 py-2 text-lg rounded-lg cursor-pointer flex items-center gap-2"
-          >
-            Next <FaArrowRight className="text-sm" />
-          </button>
+              {g.value}
+            </ChoiceCard>
+          ))}
         </div>
-      )}
+      </section>
+
+      <section>
+        <StepTitle index={2}>What is your age?</StepTitle>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {ages.map((age) => (
+            <ChoiceCard key={age} selected={formData.ageRange === age} onClick={() => updateData({ ageRange: age })}>
+              {age}
+            </ChoiceCard>
+          ))}
+        </div>
+      </section>
+
+      <div className="flex justify-end border-t border-ink-200/70 pt-8">
+        <Button onClick={nextStep} disabled={!canContinue} size="lg">
+          Continue <FiArrowRight />
+        </Button>
+      </div>
     </div>
   );
 }

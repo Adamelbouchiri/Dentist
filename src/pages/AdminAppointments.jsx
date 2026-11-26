@@ -1,339 +1,207 @@
-import axios from "axios";
-import { useContext, useEffect, useState } from "react";
-import { FaTrash, FaEdit } from "react-icons/fa";
+import { useState } from "react";
+import { FiEdit2, FiTrash2, FiCalendar } from "react-icons/fi";
+
+import {
+  useAdminAppointments,
+  useDeleteAdminAppointment,
+  useUpdateAppointmentStatus,
+} from "../hooks/useAdmin";
+import { getErrorMessage } from "../lib/api";
 import { flash } from "../utils/flash";
-import AppContext from "../context/AppProvider";
-import { BounceLoader } from "react-spinners";
-import Lottie from "lottie-react";
-import noData from "../animation/non-data-found.json";
+import { PageHeader } from "../components/dashboard/DashboardShell";
+import { Pagination, SearchBar, Segmented, Table } from "../components/dashboard/DataTable";
+import { Button } from "../components/ui/Button";
+import { Select } from "../components/ui/Field";
+import { Badge, EmptyState } from "../components/ui/Misc";
+import { Modal } from "../components/ui/Modal";
+import { PageLoader } from "../components/ui/Spinner";
+
+const periods = [
+  { value: "today", label: "Today" },
+  { value: "week", label: "This week" },
+  { value: "month", label: "This month" },
+];
+
+const columns = [
+  { label: "Patient" },
+  { label: "Doctor" },
+  { label: "Service" },
+  { label: "Date & time" },
+  { label: "Status" },
+  { label: "Payment" },
+  { label: "Price", align: "right" },
+  { label: "", align: "right" },
+];
 
 export const AdminAppointments = () => {
-  const BASE_URL = "http://127.0.0.1:8000";
-  const { token } = useContext(AppContext);
-
-  const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedFilter, setSelectedFilter] = useState("today");
+  const [filter, setFilter] = useState("today");
   const [status, setStatus] = useState("all");
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [lastPage, setLastPage] = useState(1);
 
-  const [showModal, setShowModal] = useState(false);
-  const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
-  const [newStatus, setNewStatus] = useState(""); // For the dropdown inside modal
+  const [editing, setEditing] = useState(null);
+  const [newStatus, setNewStatus] = useState("");
+  const [deleting, setDeleting] = useState(null);
 
-  const fetchAppointments = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`${BASE_URL}/api/admin/appointments`, {
-        params: {
-          filter: selectedFilter,
-          status,
-          search,
-          page,
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setAppointments(response.data.data);
-      setLastPage(response.data.last_page);
-    } catch (error) {
-      console.log(error.response.data.message);
+  const { data, isPending, isFetching } = useAdminAppointments({ filter, status, search, page });
+  const updateStatus = useUpdateAppointmentStatus();
+  const deleteAppointment = useDeleteAdminAppointment();
 
-      flash.show("Error fetching appointments", "error", 3000);
-    } finally {
-      setLoading(false);
-    }
+  const appointments = data?.data ?? [];
+  const lastPage = data?.last_page ?? 1;
+
+  const changeFilter = (setter) => (value) => {
+    setter(value);
+    setPage(1);
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this appointment?")) return;
-    try {
-      await axios.delete(`${BASE_URL}/api/admin/appointments/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+  const handleSaveStatus = () => {
+    if (!newStatus) return flash.show("Please select a status", "error", 3000);
+    updateStatus.mutate(
+      { id: editing.id, status: newStatus },
+      {
+        onSuccess: () => {
+          flash.show("Appointment updated", "success", 3000);
+          setEditing(null);
         },
-      });
-      flash.show("Appointment deleted successfully", "success", 3000);
-      fetchAppointments();
-    } catch (error) {
-      flash.show("Error deleting appointment", "error", 3000);
-    }
-  };
-
-  const handleEditStatus = async () => {
-    try {
-      if (!newStatus) {
-        flash.show("Please select a status", "error", 3000);
-        return;
+        onError: (e) => flash.show(getErrorMessage(e, "Error updating status"), "error", 3000),
       }
-
-      await axios.put(
-        `${BASE_URL}/api/admin/appointments/${selectedAppointmentId}`,
-        { status: newStatus },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      flash.show("Appointment updated", "success", 3000);
-      setShowModal(false);
-      setNewStatus("");
-      fetchAppointments();
-    } catch (error) {
-      console.log(error.response.data.message);
-      flash.show("Error updating status", "error", 3000);
-    }
+    );
   };
 
-  const handleEditModal = (id) => {
-    setSelectedAppointmentId(id);
-    setShowModal(true);
-  };
-
-  useEffect(() => {
-    fetchAppointments();
-  }, [page]);
+  const handleDelete = () =>
+    deleteAppointment.mutate(deleting.id, {
+      onSuccess: () => {
+        flash.show("Appointment deleted", "success", 3000);
+        setDeleting(null);
+      },
+      onError: (e) => flash.show(getErrorMessage(e, "Error deleting appointment"), "error", 3000),
+    });
 
   return (
-    <div className="p-4 relative">
-      <h1 className="text-2xl font-semibold text-zinc-800 mb-6 text-center sm:text-left">
-        Manage Users Appointments
-      </h1>
+    <div>
+      <PageHeader title="Patient" accent="appointments" description="Review, update and manage every booking." />
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0 mb-6">
-        <select
-          value={selectedFilter}
-          onChange={(e) => setSelectedFilter(e.target.value)}
-          className="appearance-none bg-white border border-gray-300 text-gray-700 px-4 py-2 pr-10 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-        >
-          <option value="today">Today</option>
-          <option value="week">This Week</option>
-          <option value="month">This Month</option>
-        </select>
-
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="appearance-none bg-white border border-gray-300 text-gray-700 px-4 py-2 pr-10 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-        >
-          <option value="all">All Statuses</option>
+      <div className="mb-5 flex flex-col gap-3 xl:flex-row xl:items-center">
+        <Segmented options={periods} value={filter} onChange={changeFilter(setFilter)} />
+        <Select value={status} onChange={(e) => changeFilter(setStatus)(e.target.value)} className="xl:w-48">
+          <option value="all">All statuses</option>
           <option value="pending">Pending</option>
           <option value="confirmed">Confirmed</option>
           <option value="cancelled">Cancelled</option>
           <option value="scheduled">Scheduled</option>
-        </select>
-
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name or phone"
-          className="w-full sm:flex-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-        />
-
-        <button
-          onClick={() => {
+        </Select>
+        <SearchBar
+          value={searchInput}
+          onChange={setSearchInput}
+          onSubmit={() => {
+            setSearch(searchInput.trim());
             setPage(1);
-            fetchAppointments();
           }}
-          className={`w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-md transition-colors duration-300 ${
-            loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-          }`}
-        >
-          Search
-        </button>
+          loading={isFetching && !isPending}
+          placeholder="Search by patient name or phone"
+        />
       </div>
 
-      {/* Table */}
-
-      {loading ? (
-        <div className="flex justify-center items-center h-[70vh]">
-          <BounceLoader color="#3802ff" size={50} />
-        </div>
+      {isPending ? (
+        <PageLoader className="h-[50vh]" />
       ) : appointments.length === 0 ? (
-        <div className="bg-white border border-gray-300 rounded-xl shadow p-4">
-          <p className="text-gray-400 text-lg">
-            No available appointments, try another filters
-          </p>
-
-          <div className="">
-            <Lottie
-              animationData={noData}
-              loop={true}
-              style={{ height: 200 }}
-            />
-          </div>
-        </div>
+        <EmptyState title="No appointments found" description="Try another period, status or search term." />
       ) : (
-        <div className="overflow-x-auto shadow border border-gray-300 rounded-lg">
-          <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-indigo-50">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium text-indigo-700">
-                  User
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-indigo-700">
-                  Doctor
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-indigo-700">
-                  Service
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-indigo-700">
-                  Date
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-indigo-700">
-                  Time
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-indigo-700">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-indigo-700">
-                  Payment
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-indigo-700">
-                  Price
-                </th>
-                <th className="px-4 py-3 text-center font-medium text-indigo-700">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {appointments.map((appt) => (
-                <tr key={appt.id} className="hover:bg-indigo-50 transition">
-                  <td className="px-4 py-3">
-                    <div className="font-semibold">{appt.user?.name}</div>
-                    <div className="text-gray-500 text-xs">
-                      {appt.user?.email}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">{appt.doctor}</td>
-                  <td className="px-4 py-3">{appt.service}</td>
-                  <td className="px-4 py-3">{appt.date}</td>
-                  <td className="px-4 py-3">{appt.time}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
-                        appt.status === "pending"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : appt.status === "completed"
-                          ? "bg-green-100 text-green-700"
-                          : appt.status === "cancelled"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-blue-100 text-blue-700"
-                      }`}
+        <>
+          <Table columns={columns} fetching={isFetching}>
+            {appointments.map((a) => (
+              <tr key={a.id} className="transition-colors hover:bg-primary-50/40">
+                <td className="px-5 py-4">
+                  <p className="font-semibold text-ink-900">{a.user?.name}</p>
+                  <p className="text-[13px] text-ink-400">{a.user?.email}</p>
+                </td>
+                <td className="whitespace-nowrap px-5 py-4 text-ink-700">{a.doctor}</td>
+                <td className="whitespace-nowrap px-5 py-4 text-ink-700">{a.service}</td>
+                <td className="whitespace-nowrap px-5 py-4">
+                  <p className="font-medium text-ink-900">{a.date}</p>
+                  <p className="text-[13px] text-ink-400">{a.time?.slice(0, 5)}</p>
+                </td>
+                <td className="px-5 py-4">
+                  <Badge value={a.status} />
+                </td>
+                <td className="px-5 py-4">
+                  <Badge value={a.payment_status} />
+                </td>
+                <td className="px-5 py-4 text-right font-semibold text-ink-900">${a.price}</td>
+                <td className="px-5 py-4">
+                  <div className="flex justify-end gap-1">
+                    <button
+                      onClick={() => {
+                        setEditing(a);
+                        setNewStatus(a.status);
+                      }}
+                      title="Edit status"
+                      className="grid size-9 place-items-center rounded-xl text-ink-400 transition hover:bg-primary-50 hover:text-primary-500"
                     >
-                      {appt.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 capitalize">
-                    {appt.payment_status}
-                  </td>
-                  <td className="px-4 py-3">${appt.price}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-3 text-indigo-600">
-                      <button
-                        onClick={() => handleEditModal(appt.id)}
-                        className="hover:text-yellow-600 transition duration-300 cursor-pointer"
-                        title="Edit status"
-                      >
-                        <FaEdit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(appt.id)}
-                        className="hover:text-red-600 transition duration-300 cursor-pointer"
-                        title="Delete"
-                      >
-                        <FaTrash className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                      <FiEdit2 className="size-4" />
+                    </button>
+                    <button
+                      onClick={() => setDeleting(a)}
+                      title="Delete"
+                      className="grid size-9 place-items-center rounded-xl text-ink-400 transition hover:bg-red-50 hover:text-red-500"
+                    >
+                      <FiTrash2 className="size-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </Table>
+          <Pagination page={page} lastPage={lastPage} total={data?.total} onChange={setPage} disabled={isFetching} />
+        </>
       )}
 
-      {/* Pagination */}
-      {appointments.length > 0 && (
-        <div className="flex flex-col sm:flex-row justify-end gap-4 items-center mt-6 space-y-4 sm:space-y-0">
-          <button
-            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-            disabled={page === 1}
-            className={`px-5 py-2 rounded-md font-semibold transition ${
-              page === 1
-                ? "bg-gray-300 cursor-not-allowed text-gray-600"
-                : "bg-indigo-600 hover:bg-indigo-700 text-white"
-            }`}
-          >
-            Previous
-          </button>
+      <Modal
+        open={!!editing}
+        onClose={() => setEditing(null)}
+        icon={FiCalendar}
+        title="Update status"
+        description={editing && `${editing.user?.name} · ${editing.service} on ${editing.date}`}
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setEditing(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveStatus} loading={updateStatus.isPending}>
+              Save status
+            </Button>
+          </>
+        }
+      >
+        <Select label="Status" value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
+          <option value="">Select status</option>
+          <option value="pending">Pending</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+          <option value="scheduled">Scheduled</option>
+        </Select>
+      </Modal>
 
-          <span className="text-gray-700 font-medium">
-            Page {page} of {lastPage}
-          </span>
-
-          <button
-            onClick={() => setPage((prev) => Math.min(prev + 1, lastPage))}
-            disabled={page === lastPage}
-            className={`px-5 py-2 rounded-md font-semibold transition ${
-              page === lastPage
-                ? "bg-gray-300 cursor-not-allowed text-gray-600"
-                : "bg-indigo-600 hover:bg-indigo-700 text-white"
-            }`}
-          >
-            Next
-          </button>
-        </div>
-      )}
-
-      {showModal && (
-        <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-100">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4 text-center">
-              Edit Status for Appointment {selectedAppointmentId}
-            </h2>
-
-            <select
-              className="appearance-none transition-colors duration-300 cursor-pointer w-full mb-4 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none"
-              value={newStatus}
-              onChange={(e) => setNewStatus(e.target.value)}
-            >
-              <option value="">Select Status </option>
-              <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-              <option value="scheduled">Scheduled</option>
-            </select>
-
-            <div className="flex justify-end gap-2">
-              <button
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 cursor-pointer transition-colors duration-300"
-                onClick={() => {
-                  setShowModal(false);
-                  setNewStatus("");
-                }}
-              >
-                Cancel
-              </button>
-
-              <button
-                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 cursor-pointer transition-colors duration-300"
-                onClick={handleEditStatus}
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        open={!!deleting}
+        onClose={() => setDeleting(null)}
+        icon={FiTrash2}
+        tone="danger"
+        title="Delete appointment?"
+        description={deleting && `${deleting.user?.name}'s ${deleting.service} on ${deleting.date} will be permanently removed.`}
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setDeleting(null)}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleDelete} loading={deleteAppointment.isPending}>
+              Delete
+            </Button>
+          </>
+        }
+      />
     </div>
   );
 };

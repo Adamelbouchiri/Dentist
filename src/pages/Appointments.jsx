@@ -1,217 +1,152 @@
-import axios from "axios";
-import { useContext, useEffect, useState } from "react";
-import { FaCalendarPlus, FaRegTrashCan } from "react-icons/fa6";
-import AppContext from "../context/AppProvider";
+import { useState } from "react";
+import { FiCalendar, FiCheckCircle, FiClock, FiPlus, FiTrash2, FiUser } from "react-icons/fi";
+
+import { useDeleteAppointment, useUserAppointments } from "../hooks/useAppointments";
+import { getErrorMessage } from "../lib/api";
 import { flash } from "../utils/flash";
-import { Link } from "react-router-dom";
-import { FaCalendar } from "react-icons/fa";
-import { BounceLoader } from "react-spinners";
-import Lottie from "lottie-react";
-import noData from "../animation/non-data-found.json";
+import { PageHeader } from "../components/dashboard/DashboardShell";
+import { StatTile } from "../components/dashboard/StatTile";
+import { Button } from "../components/ui/Button";
+import { Badge, EmptyState } from "../components/ui/Misc";
+import { Modal } from "../components/ui/Modal";
+import { PageLoader } from "../components/ui/Spinner";
+
+const parseDate = (d) => (d ? new Date(`${d}T00:00:00`) : null);
+
+const AppointmentCard = ({ appt, onDelete }) => {
+  const date = parseDate(appt.date);
+  return (
+    <article className="group flex gap-5 rounded-3xl bg-white p-5 shadow-soft ring-1 ring-ink-200/70 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lift">
+      <div className="flex w-16 shrink-0 flex-col items-center justify-center rounded-2xl bg-ink-50 py-3 ring-1 ring-ink-100">
+        <span className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-500">
+          {date?.toLocaleDateString("en-US", { month: "short" })}
+        </span>
+        <span className="text-2xl font-semibold tracking-tight text-ink-900">{date?.getDate()}</span>
+        <span className="text-xs text-ink-400">{date?.toLocaleDateString("en-US", { weekday: "short" })}</span>
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="truncate font-semibold text-ink-900">{appt.service}</h3>
+            <p className="mt-0.5 flex items-center gap-1.5 text-sm text-ink-500">
+              <FiUser className="size-3.5" /> {appt.doctor}
+            </p>
+          </div>
+          <button
+            onClick={() => onDelete(appt)}
+            aria-label="Delete appointment"
+            className="grid size-9 shrink-0 place-items-center rounded-xl text-ink-300 transition hover:bg-red-50 hover:text-red-500"
+          >
+            <FiTrash2 className="size-4" />
+          </button>
+        </div>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1 text-xs font-semibold text-ink-600 ring-1 ring-ink-100">
+            <FiClock className="size-3" /> {appt.time?.slice(0, 5)}
+          </span>
+          <Badge value={appt.status} />
+          <Badge value={appt.payment_status} />
+          <span className="ml-auto text-lg font-semibold tracking-tight text-ink-900">${appt.price}</span>
+        </div>
+      </div>
+    </article>
+  );
+};
 
 export const Appointments = () => {
-  const { token } = useContext(AppContext);
+  const { data: appointments = [], isPending } = useUserAppointments();
+  const deleteAppointment = useDeleteAppointment();
+  const [toDelete, setToDelete] = useState(null);
 
-  const [appointments, setAppointments] = useState(null);
+  if (isPending) return <PageLoader className="h-[60vh]" />;
 
-  const StatusBadge = ({ status }) => {
-    const base =
-      "px-3 py-1 rounded-lg text-xs font-semibold text-white capitalize";
-    const styles = {
-      upcoming: "bg-zinc-800",
-      completed: "bg-green-500",
-      cancelled: "bg-red-500",
-    };
-    return <span className={`${base} ${styles[status]}`}>{status}</span>;
+  const isPast = (a) => a.status === "completed" || a.status === "cancelled";
+  const upcoming = appointments.filter((a) => !isPast(a));
+  const past = appointments.filter(isPast);
+
+  const confirmDelete = () => {
+    const appt = toDelete;
+    setToDelete(null);
+    deleteAppointment.mutate(appt.id, {
+      onSuccess: (data) => flash.show(data?.message || "Appointment deleted", "success", 3000),
+      onError: (error) => flash.show(getErrorMessage(error, "Could not delete appointment"), "error", 3000),
+    });
   };
 
-  const PaymentBadge = ({ payment }) => {
-    const base = "px-3 py-1 rounded-lg text-xs font-semibold";
-    const styles = {
-      pending: "bg-gray-200 text-gray-800",
-      paid: "bg-green-500 text-white",
-      refunded: "bg-gray-200 text-gray-800",
-      pay_in_person: "bg-gray-200 text-gray-800",
-    };
-    return <span className={`${base} ${styles[payment]}`}>{payment}</span>;
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      const response = await axios.delete(
-        `http://127.0.0.1:8000/api/appointments/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+  return (
+    <div>
+      <PageHeader
+        title="Your"
+        accent="appointments"
+        description="Manage your upcoming visits and review your history."
+        action={
+          <Button to="/create-appointments">
+            <FiPlus /> New appointment
+          </Button>
         }
-      );
+      />
 
-      const updatedAppointments = appointments.filter((appt) => appt.id !== id);
-      setAppointments(updatedAppointments);
-
-      flash.show(response.data.message, "success", 3000);
-    } catch (error) {
-      flash.show(error.response.data.message, "error", 3000);
-    }
-  };
-
-  const AppointmentCard = ({ appt }) => (
-    <div className="p-4 border border-gray-300 rounded-xl shadow-lg bg-white w-full">
-      <div className="flex justify-between items-start">
-        <div className="">
-          <h3 className="font-semibold text-lg">{appt.service}</h3>
-          <p className="text-sm mb-2">{appt.doctor}</p>
-        </div>
-
-        <button onClick={() => handleDelete(appt.id)} className="">
-          <FaRegTrashCan className="w-4 h-4 text-2xl text-red-500 transition duration-300 hover:scale-110 hover:text-red-600 cursor-pointer" />
-        </button>
-      </div>
-      <div className="text-md space-y-1">
-        <p>
-          <span className="font-semibold">Date:</span> {appt.date}
-        </p>
-        <p>
-          <span className="font-semibold">Time:</span> {appt.time}
-        </p>
-        <p>
-          <span className="font-semibold">Price:</span> ${appt.price}
-        </p>
-        <p>
-          <span className="font-semibold">Status:</span>{" "}
-          <StatusBadge status={appt.status} />
-        </p>
-        <p>
-          <span className="font-semibold">Payment:</span>{" "}
-          <PaymentBadge payment={appt.payment_status} />
-        </p>
-      </div>
-    </div>
-  );
-
-  useEffect(() => {
-    async function fetchUserAppointments() {
-      try {
-        const response = await axios.get(
-          "http://127.0.0.1:8000/api/user-appointments",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        setAppointments(response.data);
-      } catch (error) {
-        console.log(error.response.data.message);
-        flash.show(error.response.data.message, "error", 3000);
-      }
-    }
-
-    fetchUserAppointments();
-  }, []);
-
-  return !appointments ? (
-    <div className="flex justify-center items-center h-screen">
-      <BounceLoader color="#3802ff" size={50} />
-    </div>
-  ) : (
-    <div className="p-4">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-3xl font-bold">Your Appointments</h1>
-        <Link
-          to="/create-appointments"
-          className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white font-semibold rounded-lg shadow"
-        >
-          <FaCalendarPlus /> Add Appointment
-        </Link>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatTile featured label="Total appointments" value={appointments.length} hint="All scheduled and past visits" icon={FiCalendar} />
+        <StatTile label="Upcoming" value={upcoming.length} hint="Visits ahead of you" icon={FiClock} />
+        <StatTile
+          label="Completed"
+          value={appointments.filter((a) => a.status === "completed").length}
+          hint="Successfully finished"
+          icon={FiCheckCircle}
+        />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-        <div className="p-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl shadow">
-          <p className="text-sm flex items-center justify-between">
-            Total Appointments <FaCalendar />
-          </p>
-          <h2 className="text-3xl font-bold">{appointments.length}</h2>
-          <p className="text-xs mt-1">
-            All your scheduled and past appointments
-          </p>
-        </div>
-        <div className="p-4 bg-white border border-gray-300 rounded-xl shadow">
-          <p className="text-sm flex items-center justify-between">
-            Upcoming <FaCalendar className="text-primary-500" />
-          </p>
-          <h2 className="text-3xl font-bold">
-            {appointments.filter((appt) => appt.status === "upcoming").length}
-          </h2>
-          <p className="text-xs mt-1">Appointments in the near future</p>
-        </div>
-        <div className="p-4 bg-green-200 border border-green-300 rounded-xl shadow-green-200">
-          <p className="text-sm flex items-center justify-between text-zinc-700">
-            Completed <FaCalendar className="text-green-500" />
-          </p>
-          <h2 className="text-3xl font-bold">
-            {appointments.filter((appt) => appt.status === "completed").length}
-          </h2>
-          <p className="text-xs mt-1">Successfully finished appointments</p>
-        </div>
-      </div>
+      <section className="mt-12">
+        <h3 className="mb-4 text-lg font-semibold tracking-tight text-ink-900">Upcoming</h3>
+        {upcoming.length === 0 ? (
+          <EmptyState
+            compact
+            title="No upcoming appointments"
+            description="Book your next visit and it will appear here."
+            action={<Button to="/create-appointments" size="sm">Book a visit</Button>}
+          />
+        ) : (
+          <div className="grid gap-4 xl:grid-cols-2">
+            {upcoming.map((a) => (
+              <AppointmentCard key={a.id} appt={a} onDelete={setToDelete} />
+            ))}
+          </div>
+        )}
+      </section>
 
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Upcoming</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {appointments.length === 0 ? (
-            <div className="bg-white w-[99%] border border-gray-300 rounded-xl shadow p-4">
-              <p className="text-gray-400 text-lg">
-                No completed appointments yet
-              </p>
+      <section className="mt-12">
+        <h3 className="mb-4 text-lg font-semibold tracking-tight text-ink-900">Past & completed</h3>
+        {past.length === 0 ? (
+          <EmptyState compact title="No past appointments yet" />
+        ) : (
+          <div className="grid gap-4 xl:grid-cols-2">
+            {past.map((a) => (
+              <AppointmentCard key={a.id} appt={a} onDelete={setToDelete} />
+            ))}
+          </div>
+        )}
+      </section>
 
-              <div className="">
-                <Lottie
-                  animationData={noData}
-                  loop={true}
-                  style={{ height: 200 }}
-                />
-              </div>
-            </div>
-          ) : (
-            appointments.map((appt, i) => (
-              <AppointmentCard key={i} appt={appt} />
-            ))
-          )}
-        </div>
-      </div>
-
-      <div>
-        <h2 className="text-2xl font-semibold mb-4">Past & Completed</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {appointments.filter((appt) => appt.status === "completed").length ===
-          0 ? (
-            <div className=" bg-white border border-gray-300 rounded-xl shadow p-4">
-              <p className="text-gray-400 text-lg">
-                No completed appointments yet
-              </p>
-
-              <div className="">
-                <Lottie
-                  animationData={noData}
-                  loop={true}
-                  style={{ height: 200 }}
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="">
-              {appointments
-                .filter((appt) => appt.status === "completed")
-                .map((appt, i) => (
-                  <AppointmentCard key={i} appt={appt} />
-                ))}
-            </div>
-          )}
-        </div>
-      </div>
+      <Modal
+        open={!!toDelete}
+        onClose={() => setToDelete(null)}
+        icon={FiTrash2}
+        tone="danger"
+        title="Delete this appointment?"
+        description={toDelete && `${toDelete.service} with ${toDelete.doctor} on ${toDelete.date}. This cannot be undone.`}
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setToDelete(null)}>
+              Keep it
+            </Button>
+            <Button variant="danger" onClick={confirmDelete}>
+              Delete
+            </Button>
+          </>
+        }
+      />
     </div>
   );
 };

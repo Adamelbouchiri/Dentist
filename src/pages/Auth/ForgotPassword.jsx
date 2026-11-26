@@ -1,86 +1,60 @@
 import { useState } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
-import { FaArrowLeft } from "react-icons/fa";
+import { FiArrowLeft, FiMail } from "react-icons/fi";
+import { useForgotPassword } from "../../hooks/useAuth";
+import { AuthLayout } from "../../components/auth/AuthLayout";
+import { Input } from "../../components/ui/Field";
+import { Button } from "../../components/ui/Button";
 
 export const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const forgot = useForgotPassword();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    setIsSubmitted(true);
-
-    try {
-      const response = await axios.post(
-        "http://localhost:8000/api/forgot-password",
-        {
-          email,
-        }
-      );
-
-      setMessage(response.data.status);
-    } catch (error) {
-      setMessage("Unable to send reset link. Please try again.");
-    } finally {
-      setIsSubmitted(false);
-    }
+    forgot.mutate(email);
   };
 
   return (
-    <div className="h-screen flex md:items-center justify-center">
-      <div className="w-[550px] mx-auto mt-10 p-4 shadow-lg rounded bg-white">
-        <div className="flex items-center justify-center py-4">
-          <img src="/images/logo.png" alt="icon" />
-        </div>
-        <div className="">
-          <h2 className="text-lg md:text-xl font-semibold py-2 text-center">
-            Forgot Your Password ?
-          </h2>
-          <p className="text-gray-400 text-sm pb-6 text-center">
-            A code will be sent to your email, to help you reset your password
+    <AuthLayout
+      title="Forgot your"
+      accent="password?"
+      subtitle="Enter the email linked to your account and we'll send you a secure link to reset it."
+    >
+      {forgot.isSuccess ? (
+        <div className="rounded-3xl bg-white p-6 text-center shadow-soft ring-1 ring-ink-200/70">
+          <span className="mx-auto grid size-14 place-items-center rounded-2xl gradient-primary text-white shadow-glow">
+            <FiMail className="size-6" />
+          </span>
+          <h2 className="mt-5 text-lg font-semibold text-ink-900">Check your inbox</h2>
+          <p className="mt-1.5 text-sm text-ink-500">
+            {forgot.data?.status || "If an account exists for that email, a reset link is on its way."}
           </p>
-          <form onSubmit={handleSubmit}>
-            <label
-              htmlFor="email"
-              className="text-left inline-block text-gray-600 font-bold mb-2"
-            >
-              Email Address
-            </label>
-            <input
-              id="email"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              required
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-400 px-3 py-2 rounded-lg mb-3 focus:outline-none focus:border-primary-500 focus:border-2"
-            />
-            <button
-              disabled={isSubmitted}
-              type="submit"
-              className={`w-full text-md md:text-lg bg-primary-500 text-white py-2 rounded-lg transition duration-300 hover:bg-blue-600  ${
-                isSubmitted ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-              }`}
-            >
-              {isSubmitted ? "Sending..." : "Send Reset Link"}
-            </button>
-            <Link
-              to="/login"
-              className="w-full text-md md:text-lg text-zinc-600 font-bold rounded-lg pt-4 inline-block text-center"
-            >
-              <FaArrowLeft className="inline-block me-2" /> Back To Login
-            </Link>
-            {message && (
-              <p className="mt-3 text-sm text-gray-700 text-center">
-                {message}
-              </p>
-            )}
-          </form>
         </div>
-      </div>
-    </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Input
+            label="Email address"
+            type="email"
+            icon={FiMail}
+            placeholder="you@example.com"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            error={forgot.isError && "Unable to send reset link. Please try again."}
+          />
+          <Button type="submit" size="lg" loading={forgot.isPending} className="w-full">
+            {forgot.isPending ? "Sending…" : "Send reset link"}
+          </Button>
+        </form>
+      )}
+
+      <Link
+        to="/login"
+        className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-ink-600 transition hover:text-ink-900"
+      >
+        <FiArrowLeft /> Back to sign in
+      </Link>
+    </AuthLayout>
   );
 };

@@ -1,135 +1,94 @@
-// Step2_HealthStatus.jsx
+import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Field";
+import { ChoiceCard, StepTitle } from "./ChoiceCard";
 
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+const conditions = [
+  "Diabetes",
+  "High Blood Pressure",
+  "Heart Conditions",
+  "Asthma",
+  "Blood Thinners",
+  "Allergies",
+  "None",
+];
 
 export default function Step2({ formData, updateData, nextStep, prevStep }) {
-  const conditions = [
-    "Diabetes",
-    "High Blood Pressure",
-    "Heart Conditions",
-    "Asthma",
-    "Blood Thinners",
-    "Allergies",
-  ];
-
+  // "None" is exclusive: picking it clears the rest, picking a condition clears "None".
   const toggleCondition = (condition) => {
-    const exists = formData.medicalHistory.includes(condition);
-    
-    const updated = exists
-    ? formData.medicalHistory.filter((c) => c !== condition)
-    : [...formData.medicalHistory, condition];
-    
-    updateData({ medicalHistory: updated });
+    const current = formData.medicalHistory;
+    if (current.includes(condition)) {
+      return updateData({ medicalHistory: current.filter((c) => c !== condition) });
+    }
+    updateData({
+      medicalHistory: condition === "None" ? ["None"] : [...current.filter((c) => c !== "None"), condition],
+    });
   };
-  console.log(formData);
+
+  const canContinue = formData.medication && formData.insurance && formData.medicalHistory.length > 0;
 
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Do you have dental insurance ?</h2>
-      <div className="flex gap-4 mb-8">
-        {["Yes", "No"].map((val) => (
-          <button
-            key={val}
-            onClick={() => updateData({ insurance: val })}
-            className={`py-2 w-22 rounded-lg border-2 font-bold bg-white ${
-              formData.insurance === val
-                ? "border-primary-500 text-primary-500"
-                : "border-gray-200"
-            }`}
-          >
-            {val}
-          </button>
-        ))}
-      </div>
+    <div className="space-y-12">
+      <div className="grid gap-12 lg:grid-cols-2">
+        <section>
+          <StepTitle index={1}>Do you have dental insurance?</StepTitle>
+          <div className="grid grid-cols-2 gap-3">
+            {["Yes", "No"].map((val) => (
+              <ChoiceCard key={val} selected={formData.insurance === val} onClick={() => updateData({ insurance: val })}>
+                {val}
+              </ChoiceCard>
+            ))}
+          </div>
+        </section>
 
-      <h2 className="text-xl font-bold mb-4">
-        Are you currently taking any medications?
-      </h2>
-      <div className="flex gap-4 mb-8">
-        {["Yes", "No"].map((val) => (
-          <button
-            key={val}
-            onClick={() => updateData({ medication: val })}
-            className={`py-2 w-22 rounded-lg border-2 font-bold bg-white ${
-              formData.medication === val
-                ? "border-primary-500 text-primary-500"
-                : "border-gray-200"
-            }`}
-          >
-            {val}
-          </button>
-        ))}
+        <section>
+          <StepTitle index={2}>Currently taking medication?</StepTitle>
+          <div className="grid grid-cols-2 gap-3">
+            {["Yes", "No"].map((val) => (
+              <ChoiceCard key={val} selected={formData.medication === val} onClick={() => updateData({ medication: val })}>
+                {val}
+              </ChoiceCard>
+            ))}
+          </div>
+        </section>
       </div>
 
       {formData.medication === "Yes" && (
-        <div className="mb-8">
-          <label
-            htmlFor="medicationName"
-            className="font-bold text-lg mb-4 inline-block"
-          >
-            Medication Name :
-          </label>
-          <input
-            id="medicationName"
-            type="text"
-            placeholder="Enter your medicine"
-            value={formData.medicationName}
-            onChange={(e) => updateData({ medicationName: e.target.value })}
-            className="mb-8 p-2 w-full border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
-          />
-        </div>
+        <Input
+          label="Medication name"
+          placeholder="e.g. Ibuprofen 200mg"
+          value={formData.medicationName}
+          onChange={(e) => updateData({ medicationName: e.target.value })}
+        />
       )}
 
-      <h2 className="text-xl font-semibold mb-4">Medical History?</h2>
-      <div className="flex flex-wrap gap-2 mb-8">
-        {conditions.map((condition) => (
-          <button
-            key={condition}
-            onClick={() => toggleCondition(condition)}
-            className={`px-3 py-2 border-2 rounded-lg bg-white font-bold ${
-              formData.medicalHistory.includes(condition)
-                ? "border-primary-500 text-primary-500"
-                : "border-gray-200"
-            }`}
-          >
-            {condition}
-          </button>
-        ))}
-      </div>
-
-      <div className="mb-4">
-        <label
-          htmlFor="otherCondition"
-          className="font-bold text-lg mb-4 inline-block"
-        >
-          Others :
-        </label>
-        <input
-          type="text"
-          placeholder="Other condition"
+      <section>
+        <StepTitle index={3} hint="Select all that apply.">
+          Medical history
+        </StepTitle>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {conditions.map((c) => (
+            <ChoiceCard key={c} selected={formData.medicalHistory.includes(c)} onClick={() => toggleCondition(c)}>
+              {c}
+            </ChoiceCard>
+          ))}
+        </div>
+        <Input
+          className="mt-5"
+          label="Other conditions"
+          placeholder="Anything else we should know"
           value={formData.otherCondition}
           onChange={(e) => updateData({ otherCondition: e.target.value })}
-          className="mb-8 p-2 w-full border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
         />
-      </div>
+      </section>
 
-      <div className="flex justify-center md:justify-end gap-4">
-        <button
-          onClick={prevStep}
-          className="text-primary-500 border-2 border-primary-500 bg-white px-4 py-2 rounded-lg flex items-center gap-2 font-bold cursor-pointer"
-        >
-          <FaArrowLeft className="text-md" /> Back
-        </button>
-        {formData.medication &&
-          formData.insurance &&
-          formData.medicalHistory.length > 0 && (
-            <button
-              onClick={nextStep}
-              className="text-white border-2 border-primary-500 bg-primary-500 px-4 py-2 rounded-lg flex items-center gap-2 font-bold cursor-pointer"
-            >
-              Next <FaArrowRight className="text-md" />
-            </button>
-          )}
+      <div className="flex justify-between border-t border-ink-200/70 pt-8">
+        <Button onClick={prevStep} variant="outline" size="lg">
+          <FiArrowLeft /> Back
+        </Button>
+        <Button onClick={nextStep} disabled={!canContinue} size="lg">
+          Continue <FiArrowRight />
+        </Button>
       </div>
     </div>
   );

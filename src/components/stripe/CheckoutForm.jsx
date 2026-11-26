@@ -1,37 +1,39 @@
-// src/components/stripe/CheckoutForm.jsx
 import { useState } from "react";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
-import axios from "axios";
+import { FiLock } from "react-icons/fi";
+import { api } from "../../lib/api";
 import { flash } from "../../utils/flash";
-import { PuffLoader } from "react-spinners";
-import { form } from "framer-motion/client";
+import { Button } from "../ui/Button";
 
-const CheckoutForm = ({ amount, email, onSuccess, serviceName }) => {
+const cardStyle = {
+  style: {
+    base: {
+      fontFamily: '"Plus Jakarta Sans", system-ui, sans-serif',
+      fontSize: "15px",
+      color: "#0b0a1a",
+      "::placeholder": { color: "#b4b4c8" },
+    },
+    invalid: { color: "#ef4444" },
+  },
+};
+
+const CheckoutForm = ({ amount, email, onSuccess, disabled }) => {
   const stripe = useStripe();
   const elements = useElements();
-
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    if (!stripe || !elements) return;
     setLoading(true);
 
-    if (!stripe || !elements) return;
-
     try {
-      // Call your Laravel backend to create a payment intent
-      const response = await axios.post(
-        "http://localhost:8000/api/create-payment-intent",
-        {
-          amount: amount * 100, // amount in cents
-          email,
-        }
-      );
+      const { data } = await api.post("/create-payment-intent", {
+        amount: amount * 100, // cents
+        email,
+      });
 
-      const clientSecret = response.data.clientSecret;
-
-      const result = await stripe.confirmCardPayment(clientSecret, {
+      const result = await stripe.confirmCardPayment(data.clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),
           billing_details: { email },
@@ -39,23 +41,14 @@ const CheckoutForm = ({ amount, email, onSuccess, serviceName }) => {
       });
 
       if (result.error) {
-        // alert(result.error.message);
         flash.show(result.error.message, "error", 3000);
-      } else {
-        if (result.paymentIntent.status === "succeeded") {
-          // alert("Payment successful");
-          onSuccess(result.paymentIntent); // pass to parent
-          flash.show("Payment successful", "success", 2000);
-        }
+      } else if (result.paymentIntent.status === "succeeded") {
+        flash.show("Payment successful", "success", 2000);
+        onSuccess(result.paymentIntent);
       }
     } catch (error) {
       console.error("Payment error:", error);
-      // alert("An error occurred while processing the payment.");
-      flash.show(
-        "An error occurred while processing the payment.",
-        "error",
-        3000
-      );
+      flash.show("An error occurred while processing the payment.", "error", 3000);
     } finally {
       setLoading(false);
     }
@@ -64,32 +57,14 @@ const CheckoutForm = ({ amount, email, onSuccess, serviceName }) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Card Details
-        </label>
-        <div className="p-3 border border-gray-300 rounded-lg">
-          <CardElement />
+        <p className="mb-2 text-[13px] font-semibold text-ink-700">Card details</p>
+        <div className="rounded-2xl bg-white px-4 py-4 ring-1 ring-inset ring-ink-200 transition focus-within:ring-2 focus-within:ring-primary-500">
+          <CardElement options={cardStyle} />
         </div>
       </div>
-
-      <div className="border-t border-gray-200 pt-4">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm text-gray-600">Service: {serviceName}</span>
-          <span className="text-sm text-gray-900">${amount}</span>
-        </div>
-        <div className="flex justify-between items-center mb-4">
-          <span className="text-lg font-semibold text-gray-900">Total</span>
-          <span className="text-lg font-semibold text-gray-900">${amount}</span>
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full bg-primary-500 text-white flex items-center justify-center py-3 px-4 rounded-lg font-semibold hover:bg-blue-600 transition duration-300 ease-in-out ${loading ? "cursor-not-allowed" : "cursor-pointer"
-            }`}
-        >
-          {loading ? <PuffLoader size={30} color="#fff" className="p-0 m-0" /> : `Pay $${amount}`}
-        </button>
-      </div>
+      <Button type="submit" size="lg" className="w-full" loading={loading} disabled={!stripe || disabled}>
+        {!loading && <FiLock className="size-4" />} Pay ${amount.toLocaleString()}
+      </Button>
     </form>
   );
 };

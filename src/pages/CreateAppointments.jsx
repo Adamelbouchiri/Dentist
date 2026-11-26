@@ -1,482 +1,282 @@
-import { DateTimePicker } from "../components/appointments/DateTimePicker";
 import { useContext, useState } from "react";
-import {
-  FaStar,
-  FaPaypal,
-  FaCreditCard,
-  FaMoneyBillWave,
-  FaExclamationTriangle,
-} from "react-icons/fa";
-import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import { FiArrowLeft, FiCheck, FiCreditCard, FiDollarSign, FiStar } from "react-icons/fi";
 
+import { DateTimePicker } from "../components/appointments/DateTimePicker";
 import StripeWrapper from "../components/stripe/StripeWrapper";
 import CheckoutForm from "../components/stripe/CheckoutForm";
-import Lottie from "lottie-react";
-import loadingAnimation from "../animation/Loading-animation.json";
-import axios from "axios";
 import AppContext from "../context/AppProvider";
+import { useCreateAppointment } from "../hooks/useAppointments";
+import { getErrorMessage, toLocalISODate } from "../lib/api";
 import { flash } from "../utils/flash";
-import { Navigate } from "react-router-dom";
+import { doctors, services } from "../data/clinic";
+import { Avatar, Logo } from "../components/ui/Misc";
+import { Button } from "../components/ui/Button";
+
+const paymentMethods = [
+  { id: "card", name: "Pay by card", icon: FiCreditCard },
+  { id: "person", name: "Pay in person", icon: FiDollarSign },
+];
+
+const Step = ({ n, title, subtitle, children }) => (
+  <section className="rounded-[32px] bg-white p-6 shadow-soft ring-1 ring-ink-200/70 md:p-8">
+    <div className="mb-7 flex items-start gap-4">
+      <span className="font-display text-4xl italic leading-none text-gradient">0{n}</span>
+      <div>
+        <h2 className="text-xl font-semibold tracking-tight text-ink-900">{title}</h2>
+        {subtitle && <p className="mt-0.5 text-sm text-ink-400">{subtitle}</p>}
+      </div>
+    </div>
+    {children}
+  </section>
+);
+
+const SummaryRow = ({ label, value, done }) => (
+  <div className="flex items-center justify-between gap-4 py-3.5">
+    <span className="flex items-center gap-2.5 text-sm text-ink-500">
+      <span
+        className={`grid size-5 place-items-center rounded-full transition-colors ${
+          done ? "gradient-primary text-white" : "ring-1 ring-ink-200"
+        }`}
+      >
+        {done && <FiCheck className="size-3" />}
+      </span>
+      {label}
+    </span>
+    <span className={`text-right text-sm font-semibold ${done ? "text-ink-900" : "text-ink-300"}`}>
+      {value || "Not selected"}
+    </span>
+  </div>
+);
 
 export const CreateAppointments = () => {
-  const { user, token } = useContext(AppContext);
+  const { user } = useContext(AppContext);
+  const navigate = useNavigate();
+  const createAppointment = useCreateAppointment();
 
-  const [selectedCategory, setSelectedCategory] = useState("General Checkups");
-  const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [serviceId, setServiceId] = useState(services[0].id);
+  const [doctorId, setDoctorId] = useState(null);
+  const [date, setDate] = useState(() => new Date());
+  const [time, setTime] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState("card");
 
-  const today = new Date();
+  if (user.role === "admin") return <Navigate to="/admin/dashboard" replace />;
 
-  const [selectDate, setSelectDate] = useState(today);
-  const [selectTime, setSelectTime] = useState("09:30");
+  const service = services.find((s) => s.id === serviceId);
+  const doctor = doctors.find((d) => d.id === doctorId);
+  const ready = service && doctor && date && time;
 
-  const [selectedPaymentMethod, setSelectedPaymentMethod] =
-    useState("Pay by Card");
-  const [currentDoctorSlide, setCurrentDoctorSlide] = useState(0);
-
-  const [formData, setFormData] = useState({
-    service: selectedCategory,
-    price: 150,
-    doctor: "",
-    date: selectDate.toISOString().split("T")[0],
-    time: selectTime,
-    status: "upcoming",
-    payment_status: "",
-  });
-
-  const [loading, setLoading] = useState(false);
-
-  const categories = [
-    {
-      id: "general",
-      name: "General Checkups",
-      icon: "/images/services-icon-1.png",
-      price: 150,
-    },
-    {
-      id: "whitening",
-      name: "Teeth Whitening",
-      icon: "/images/services-icon-2.png",
-      price: 300,
-    },
-    {
-      id: "braces",
-      name: "Braces/Invisalign",
-      icon: "/images/services-icon-3.png",
-      price: 2500,
-    },
-    {
-      id: "emergency",
-      name: "Emergency Dentistry",
-      icon: "/images/services-icon-4.png",
-      price: 200,
-    },
-    {
-      id: "cosmetic",
-      name: "Cosmetic Dentistry",
-      icon: "/images/services-icon-5.png",
-      price: 800,
-    },
-  ];
-
-  const doctors = [
-    {
-      id: 1,
-      name: "Dr. Cris waxon",
-      speciality: "General Dentist",
-      rating: 4.9,
-      image: "/images/doctor-1.jpg",
-    },
-    {
-      id: 2,
-      name: "Dr. Tayler Smith",
-      speciality: "Orthodontist",
-      rating: 4.8,
-      image: "/images/doctor-2.jpg",
-    },
-    {
-      id: 3,
-      name: "Dr. John Doe",
-      speciality: "General Dentist",
-      rating: 4.8,
-      image: "/images/doctor-3.jpg",
-    },
-  ];
-
-  const paymentMethods = [
-    { id: "card", name: "Pay by Card", icon: FaCreditCard },
-    { id: "person", name: "Pay in Person", icon: FaMoneyBillWave },
-  ];
-
-  if(user.role === "admin") {
-    return <Navigate to="/admin/dashboard" />
-  }
-
-  const handleBookDoctor = (doctorId) => {
-    setSelectedDoctor(doctorId);
-  };
-
-  const getSelectedCategoryPrice = () => {
-    const category = categories.find((cat) => cat.name === selectedCategory);
-    return category ? category.price : 0;
-  };
-
-  // Carousel navigation functions
-  const nextDoctorSlide = () => {
-    const maxSlides = Math.ceil(doctors.length / 2);
-    setCurrentDoctorSlide((prev) => (prev + 1) % maxSlides);
-  };
-
-  const prevDoctorSlide = () => {
-    const maxSlides = Math.ceil(doctors.length / 2);
-    setCurrentDoctorSlide((prev) => (prev - 1 + maxSlides) % maxSlides);
-  };
-
-  // Get doctors for current slide
-  const getCurrentSlideDoctors = () => {
-    const startIndex = currentDoctorSlide * 2;
-    return doctors.slice(startIndex, startIndex + 2);
-  };
-
-  async function handleAppointment(paymentStatus) {
-    setLoading(true);
-    try {
-      const payload = {
-        ...formData,
-        payment_status: paymentStatus,
-      };
-
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/appointments",
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = response.data;
-
-      console.log(data);
-
-      flash.show("Appointment created successfully", "success", 3000);
-    } catch (error) {
-      if (error.response && error.response.status === 422) {
-        const errors = error.response.data.errors;
-        console.error("Validation failed:", errors);
-        const firstError = Object.values(errors)[0][0]; // get first error message
-        flash.show(firstError || "Validation error", "error", 5000);
-      } else {
-        flash.show("Appointment failed", "error", 3000);
-        console.error(error);
-      }
-    } finally {
-      setFormData({
-        ...formData,
-        doctor: "",
-        date: selectDate.toISOString().split("T")[0],
-        time: selectTime,
+  const handleAppointment = (paymentStatus) =>
+    createAppointment.mutate(
+      {
+        service: service.name,
+        price: service.price,
+        doctor: doctor.name,
+        date: toLocalISODate(date),
+        time,
         status: "upcoming",
-        payment_status: "",
-      });
-      setSelectedCategory("General Checkups");
-      setSelectedDoctor(null);
-      setLoading(false);
-    }
-  }
-
-  const renderPaymentForm = () => {
-    switch (selectedPaymentMethod) {
-      case "Pay by Card":
-        return (
-          <StripeWrapper>
-            <CheckoutForm
-              amount={getSelectedCategoryPrice()}
-              setFormData={setFormData}
-              email={formData.email}
-              serviceName={selectedCategory}
-              onSuccess={() => {
-                handleAppointment("paid");
-              }}
-            />
-          </StripeWrapper>
-        );
-      case "Pay in Person":
-        return (
-          <div className="space-y-4">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-              <FaMoneyBillWave className="text-green-600 text-4xl mx-auto mb-3" />
-              <h4 className="font-semibold text-gray-900 mb-2">
-                Pay in Person
-              </h4>
-              <p className="text-sm text-gray-600 mb-4">
-                You can pay cash or card at our clinic during your appointment.
-              </p>
-              <div className="bg-white rounded-lg p-3 text-left">
-                <p className="text-sm font-medium text-gray-900 mb-1">
-                  Accepted Payment Methods:
-                </p>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Cash</li>
-                  <li>• Credit/Debit Cards</li>
-                  <li>• Insurance (if applicable)</li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Total and Pay Button */}
-            <div className="border-t border-gray-200 pt-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-600">
-                  Service: {selectedCategory}
-                </span>
-                <span className="text-sm text-gray-900">
-                  ${getSelectedCategoryPrice()}
-                </span>
-              </div>
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-lg font-semibold text-gray-900">
-                  Total
-                </span>
-                <span className="text-lg font-semibold text-gray-900">
-                  ${getSelectedCategoryPrice()}
-                </span>
-              </div>
-              <button disabled={loading} onClick={() => {handleAppointment("pay_in_person")}} className={`w-full bg-primary-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-300 ${loading ? "cursor-not-allowed" : "cursor-pointer"}`}>
-                {getPaymentButtonText()}
-              </button>
-            </div>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
-  const getPaymentButtonText = () => {
-    const price = getSelectedCategoryPrice();
-    switch (selectedPaymentMethod) {
-      case "Pay by Card":
-        return `Pay $${price}`;
-      case "Pay in Person":
-        return `Confirm Appointment`;
-      default:
-        return `Pay $${price}`;
-    }
-  };
+        payment_status: paymentStatus,
+      },
+      {
+        onSuccess: () => {
+          flash.show("Appointment created successfully", "success", 3000);
+          navigate("/user/dashboard/appointments");
+        },
+        onError: (error) =>
+          flash.show(getErrorMessage(error, "Appointment failed"), "error", error?.response?.status === 422 ? 5000 : 3000),
+      }
+    );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex justify-center md:justify-start">
-          <img src="/images/logo.png" alt="doctor logo" />
+    <div className="min-h-screen bg-ivory">
+      <header className="sticky top-0 z-30 border-b border-ink-200/60 bg-ivory/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-[1360px] items-center justify-between gap-4 px-5 py-4 md:px-8">
+          <Logo className="h-10" />
+          <div className="flex items-center gap-2">
+            <Link
+              to="/user/dashboard/appointments"
+              className="hidden items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-ink-600 transition hover:bg-ink-100 sm:inline-flex"
+            >
+              <FiArrowLeft /> My appointments
+            </Link>
+            <Link to="/user/dashboard">
+              <Avatar user={user} className="size-10" />
+            </Link>
+          </div>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Side - Appointment Details */}
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-bold text-zinc-800 mb-6">
-                Make your appointment
-              </h2>
-              {/* Category Selection */}
-              <div className="mb-4 p-6 rounded-xl bg-white border-2 border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-400 mb-4 border-b border-gray-200 pb-2">
-                  Choose service
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {categories.map((category) => {
-                    return (
-                      <button
-                        key={category.id}
-                        onClick={() => {
-                          setFormData((prev) => ({
-                            ...prev,
-                            service: category.name,
-                          }));
-                          setFormData((prev) => ({
-                            ...prev,
-                            price: category.price,
-                          }));
-                          setSelectedCategory(category.name);
-                          console.log(formData);
-                        }}
-                        className={`p-3 rounded-xl border-2 text-left transition-colors cursor-pointer ${
-                          selectedCategory === category.name
-                            ? "border-accent-500 bg-blue-50 text-accent-500"
-                            : "border-gray-200 hover:border-gray-300 text-gray-700"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <img
-                              src={category.icon || "/placeholder.svg"}
-                              alt="category icon"
-                              className="w-6 h-6"
-                            />
-                            <span className="text-sm font-medium">
-                              {category.name}
-                            </span>
-                          </div>
-                          <span className="text-sm font-semibold text-green-600">
-                            ${category.price}
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+      </header>
+
+      <div className="mx-auto max-w-[1360px] px-5 py-10 md:px-8 md:py-14">
+        <div className="mb-10 max-w-2xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-500">Book a visit</p>
+          <h1 className="mt-3 text-4xl font-semibold leading-[1.05] tracking-[-0.035em] text-ink-900 md:text-5xl">
+            Make your <span className="font-display italic text-gradient pr-1">appointment</span>
+          </h1>
+          <p className="mt-3 text-ink-500">Choose a treatment, your specialist and a time that suits you.</p>
+        </div>
+
+        <div className="grid items-start gap-6 lg:grid-cols-[1fr_400px] xl:grid-cols-[1fr_440px]">
+          <div className="space-y-6">
+            <Step n={1} title="Choose a service" subtitle="Transparent pricing — no surprises.">
+              <div className="grid gap-3 sm:grid-cols-2">
+                {services.map((s) => {
+                  const selected = s.id === serviceId;
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => setServiceId(s.id)}
+                      className={`flex items-center gap-4 rounded-2xl p-4 text-left transition-all duration-300 ${
+                        selected
+                          ? "bg-primary-50/60 ring-2 ring-primary-500"
+                          : "bg-white ring-1 ring-ink-200 hover:ring-ink-300"
+                      }`}
+                    >
+                      <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-white ring-1 ring-ink-100">
+                        <img src={s.icon} alt="" className="max-h-7 max-w-8 object-contain" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-semibold text-ink-900">{s.name}</span>
+                        <span className="block text-[13px] text-ink-400">{s.duration}</span>
+                      </span>
+                      <span className={`text-sm font-semibold ${selected ? "text-primary-600" : "text-ink-900"}`}>
+                        ${s.price.toLocaleString()}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-              {/* Doctor Selection - Carousel */}
-              <div className="mb-4 p-6 rounded-xl bg-white border-2 border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg flex-1 font-semibold text-gray-400 border-b border-gray-200 pb-2">
-                    Choose Doctor
-                  </h3>
-                  <div className="flex items-center gap-2">
+            </Step>
+
+            <Step n={2} title="Choose your specialist">
+              <div className="grid gap-3 sm:grid-cols-3">
+                {doctors.map((d) => {
+                  const selected = d.id === doctorId;
+                  return (
                     <button
-                      onClick={prevDoctorSlide}
-                      className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                      key={d.id}
+                      onClick={() => setDoctorId(d.id)}
+                      className={`group relative overflow-hidden rounded-3xl text-left transition-all duration-300 ${
+                        selected ? "ring-2 ring-primary-500 shadow-lift" : "ring-1 ring-ink-200 hover:ring-ink-300"
+                      }`}
                     >
-                      <IoIosArrowBack className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={nextDoctorSlide}
-                      className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                    >
-                      <IoIosArrowForward className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {getCurrentSlideDoctors().map((doctor) => (
-                    <div
-                      key={doctor.id}
-                      className="border border-gray-200 rounded-lg p-2"
-                    >
-                      <div className="flex items-center gap-3">
+                      <div className="aspect-[4/3] overflow-hidden bg-ink-100">
                         <img
-                          src={doctor.image || "/placeholder.svg"}
-                          alt={doctor.name}
-                          className="w-18 h-18 rounded-lg object-top"
+                          src={d.image}
+                          alt={d.name}
+                          className="size-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                         />
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900">
-                            {doctor.name}
-                          </h4>
-                          <span className="text-sm text-gray-400 me-1">
-                            {doctor.speciality}
-                          </span>
-                          <div className="flex justify-between items-center mt-3">
-                            <div className="flex items-center">
-                              <FaStar className="text-yellow-400 me-2" />{" "}
-                              {doctor.rating}
-                            </div>
-                            <button
-                              onClick={() => {
-                                handleBookDoctor(doctor.id);
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  doctor: doctor.name,
-                                }));
-                              }}
-                              className={` py-1 px-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
-                                selectedDoctor === doctor.id
-                                  ? "bg-accent-500 text-white"
-                                  : "bg-primary-500 text-white hover:bg-blue-700"
-                              }`}
-                            >
-                              {selectedDoctor === doctor.id
-                                ? "Selected"
-                                : "Book"}
-                            </button>
-                          </div>
-                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-                {/* Carousel indicators */}
-                <div className="flex justify-center mt-4 gap-2">
-                  {Array.from({ length: Math.ceil(doctors.length / 2) }).map(
-                    (_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setCurrentDoctorSlide(index)}
-                        className={`w-2 h-2 rounded-full transition-colors ${
-                          currentDoctorSlide === index
-                            ? "bg-primary-500"
-                            : "bg-gray-300"
-                        }`}
-                      />
-                    )
-                  )}
-                </div>
+                      <div className="flex items-start justify-between gap-2 bg-white p-4">
+                        <div>
+                          <p className="text-sm font-semibold text-ink-900">{d.name}</p>
+                          <p className="text-[13px] text-ink-400">{d.speciality}</p>
+                        </div>
+                        <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-ink-700">
+                          <FiStar className="size-3 fill-amber-400 text-amber-400" /> {d.rating}
+                        </span>
+                      </div>
+                      {selected && (
+                        <span className="absolute right-3 top-3 grid size-7 place-items-center rounded-full gradient-primary text-white shadow-glow">
+                          <FiCheck className="size-4" />
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
-              {/* Date and Time Picker Placeholder */}
-              <div className="mb-8">
-                <DateTimePicker
-                  selectedDate={selectDate}
-                  setSelectDate={setSelectDate}
-                  selectedTime={selectTime}
-                  setSelectTime={setSelectTime}
-                  setFormData={setFormData}
+            </Step>
+
+            <Step n={3} title="Choose date & time" subtitle="Mon – Sat · 9:30 – 16:00">
+              <DateTimePicker
+                selectedDate={date}
+                onDateChange={(d) => {
+                  setDate(d);
+                  setTime(null);
+                }}
+                selectedTime={time}
+                onTimeChange={setTime}
+              />
+            </Step>
+          </div>
+
+          {/* Summary & payment */}
+          <aside className="lg:sticky lg:top-24">
+            <div className="overflow-hidden rounded-[32px] bg-white shadow-soft ring-1 ring-ink-200/70">
+              <div className="relative overflow-hidden bg-ink-950 p-6 text-white md:p-7">
+                <div className="absolute -right-16 -top-16 size-48 rounded-full bg-primary-500/50 blur-3xl" />
+                <div className="absolute -bottom-20 left-0 size-40 rounded-full bg-accent-500/30 blur-3xl" />
+                <p className="relative text-xs font-semibold uppercase tracking-[0.22em] text-white/50">Your appointment</p>
+                <p className="relative mt-2 text-2xl font-semibold tracking-tight">{service.name}</p>
+                <p className="relative mt-4 flex items-baseline gap-1 text-4xl font-semibold tracking-tight">
+                  ${service.price.toLocaleString()}
+                  <span className="text-sm font-normal text-white/50">total</span>
+                </p>
+              </div>
+
+              <div className="divide-y divide-ink-100 px-6 md:px-7">
+                <SummaryRow label="Service" value={service.name} done />
+                <SummaryRow label="Specialist" value={doctor?.name} done={!!doctor} />
+                <SummaryRow
+                  label="Date"
+                  value={date?.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "long" })}
+                  done={!!date}
                 />
+                <SummaryRow label="Time" value={time} done={!!time} />
+              </div>
+
+              <div className="border-t border-ink-100 p-6 md:p-7">
+                {!ready ? (
+                  <p className="rounded-2xl bg-ink-50 p-4 text-center text-sm text-ink-500 ring-1 ring-ink-100">
+                    Select a specialist, date and time to continue to payment.
+                  </p>
+                ) : (
+                  <>
+                    <div className="mb-5 grid grid-cols-2 gap-1 rounded-full bg-ink-50 p-1 ring-1 ring-ink-100">
+                      {paymentMethods.map(({ id, name, icon: Icon }) => (
+                        <button
+                          key={id}
+                          onClick={() => setPaymentMethod(id)}
+                          className={`inline-flex items-center justify-center gap-2 rounded-full py-2.5 text-[13px] font-semibold transition-all duration-300 ${
+                            paymentMethod === id ? "bg-white text-ink-900 shadow-soft" : "text-ink-500 hover:text-ink-900"
+                          }`}
+                        >
+                          <Icon className="size-4" /> {name}
+                        </button>
+                      ))}
+                    </div>
+
+                    {paymentMethod === "card" ? (
+                      <StripeWrapper>
+                        <CheckoutForm
+                          amount={service.price}
+                          email={user.email}
+                          disabled={createAppointment.isPending}
+                          onSuccess={() => handleAppointment("paid")}
+                        />
+                      </StripeWrapper>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="rounded-2xl bg-emerald-50/60 p-4 ring-1 ring-emerald-100">
+                          <p className="text-sm font-semibold text-ink-900">Pay at the clinic</p>
+                          <p className="mt-1 text-sm text-ink-500">
+                            Cash, credit/debit card or insurance (if applicable) on the day of your visit.
+                          </p>
+                        </div>
+                        <Button
+                          size="lg"
+                          className="w-full"
+                          loading={createAppointment.isPending}
+                          onClick={() => handleAppointment("pay_in_person")}
+                        >
+                          Confirm appointment
+                        </Button>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </div>
-          </div>
-          {/* Right Side - Payment */}
-          <div className="bg-white shadow-lg rounded-lg p-6 h-fit">
-            <h3 className="text-lg font-semibold text-zinc-800 mb-6">
-              Payment method
-            </h3>
-            {formData.service &&
-            formData.doctor &&
-            formData.date &&
-            formData.time ? (
-              <div className="">
-                {/* Payment Method Selection */}
-                <div className="grid grid-cols-1 gap-3 mb-6">
-                  {paymentMethods.map((method) => {
-                    const IconComponent = method.icon;
-                    return (
-                      <button
-                        key={method.id}
-                        onClick={() => setSelectedPaymentMethod(method.name)}
-                        className={`p-3 rounded-lg border text-left transition-colors flex items-center gap-3 cursor-pointer ${
-                          selectedPaymentMethod === method.name
-                            ? "border-accent-500 bg-blue-50 text-blue-500"
-                            : "border-gray-200 hover:border-gray-300 text-gray-700"
-                        }`}
-                      >
-                        <IconComponent className="text-lg" />
-                        <span className="text-sm font-medium">
-                          {method.name}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-                {/* Dynamic Payment Form */}
-                <div className="mb-6">{renderPaymentForm()}</div>
-              </div>
-            ) : (
-              <div className="">
-                <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6 shadow-sm">
-                  <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center mt-0.5">
-                      <FaExclamationTriangle className="w-3 h-3 text-amber-600" />
-                    </div>
-                    <p className="text-gray-600 text-sm leading-relaxed font-medium">
-                      Please select a service, doctor, date, and time to proceed
-                      with payment.
-                    </p>
-                  </div>
-                </div>
-
-                <Lottie animationData={loadingAnimation} loop={true} />
-              </div>
-            )}
-          </div>
+          </aside>
         </div>
       </div>
     </div>

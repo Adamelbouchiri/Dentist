@@ -1,58 +1,59 @@
-import axios from "axios";
-import { createContext, useEffect, useState } from "react";
-import { BounceLoader } from "react-spinners";
+import { createContext, useCallback, useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { clearStoredToken, getStoredToken } from "../lib/api";
+import { queryKeys } from "../lib/queryClient";
+import { useUserQuery } from "../hooks/useAuth";
+import { PageLoader } from "../components/ui/Spinner";
 
 const AppContext = createContext();
 
 export function AppProvider({ children }) {
-  const [token, setToken] = useState(localStorage.getItem("token") || sessionStorage.getItem("token"));
-  const [user, setUser] = useState(null);
-  const [loadingUser, setLoadingUser] = useState(true);
-  // const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
+  const [token, setToken] = useState(getStoredToken);
 
-  async function getUser() {
-    // setLoading(true);
-    try {
-      const response = await axios.get("http://127.0.0.1:8000/api/user", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  const { data: user = null, isPending, error } = useUserQuery(token);
+  const loadingUser = !!token && isPending;
 
-    const data = response.data;
-    setUser(data);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      // setLoading(false);
-      setLoadingUser(false);
-    }
-  }
-
+  // Stale / revoked token → drop it so the app falls back to guest mode
   useEffect(() => {
-    if (token) {
-      getUser();
-    } else {
-      // setLoading(false)
-      setLoadingUser(false);
+    if (error?.response?.status === 401) {
+      clearStoredToken();
+      setToken(null);
+      queryClient.removeQueries({ queryKey: queryKeys.user });
     }
-  }, [token]);
+  }, [error, queryClient]);
 
-  console.log(user);
-
-  if(loadingUser) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <BounceLoader color="#3802ff" size={50}/>
-      </div>
-    )
-  }
-
-  return (
-    <AppContext.Provider value={{ token, setToken, user, setUser, loadingUser }}>
-      {children}
-    </AppContext.Provider>
+  const setUser = useCallback(
+    (next) => queryClient.setQueryData(queryKeys.user, next),
+    [queryClient]
   );
+
+  /** Persist a fresh token and load the matching user. */
+  const signIn = useCallback(
+    (newToken, remember = true) => {
+      clearStoredToken();
+      (remember ? localStorage : sessionStorage).setItem("token", newToken);
+      queryClient.removeQueries();
+      setToken(newToken);
+    },
+    [queryClient]
+  );
+
+  /** Forget the token and every cached query (no data leaks between accounts). */
+  const signOut = useCallback(() => {
+    clearStoredToken();
+    setToken(null);
+    queryClient.clear();
+  }, [queryClient]);
+
+  const value = useMemo(
+    () => ({ token, setToken, user, setUser, loadingUser, signIn, signOut }),
+    [token, user, setUser, loadingUser, signIn, signOut]
+  );
+
+  if (loadingUser) return <PageLoader />;
+
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 
 export default AppContext;

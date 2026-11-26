@@ -1,97 +1,69 @@
-import React from "react";
-import { FaCheck } from "react-icons/fa";
+import { FiCheck } from "react-icons/fi";
+
+export const onboardingSteps = [
+  { label: "General details", desc: "Some basic information so we get to know you" },
+  { label: "Physical health", desc: "Health conditions that are important to consider" },
+  { label: "Contact details", desc: "How we can reach out to you" },
+];
 
 export const ProgressBar = ({ currentStep }) => {
-  const steps = [
-    "General details",
-    "Physical health",
-    "Contact details",
-  ];
-
   return (
     <>
-    <div className="flex md:hidden flex-row items-center justify-between px-4 py-8 w-full max-w-screen-sm mx-auto">
-      {steps.map((label, index) => {
-        const stepNumber = index + 1;
-        const isActive = currentStep === stepNumber;
-        const isCompleted = currentStep > stepNumber;
+      {/* Mobile: compact bar */}
+      <div className="w-full md:hidden">
+        <div className="flex gap-1.5">
+          {onboardingSteps.map((_, i) => (
+            <span
+              key={i}
+              className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
+                currentStep > i ? "gradient-primary" : "bg-ink-200"
+              }`}
+            />
+          ))}
+        </div>
+        <p className="mt-3 text-sm text-ink-500">
+          Step {currentStep} of {onboardingSteps.length} ·{" "}
+          <span className="font-semibold text-ink-900">{onboardingSteps[currentStep - 1].label}</span>
+        </p>
+      </div>
 
-        return (
-          <div key={index} className="flex-1 flex flex-col items-center relative">
-            {/* Step Circle */}
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold z-10
-                ${
-                  isActive || isCompleted
-                    ? "bg-primary-500 text-white"
-                    : "bg-gray-300 text-gray-800"
-                }`}
-            >
-              {isCompleted ? <FaCheck size={14} /> : stepNumber}
-            </div>
-
-            {/* Horizontal dashed line */}
-            {index < steps.length - 1 && (
-              <div className={`absolute top-4 left-1/2 w-full border-t-2 border-dashed ${isCompleted ? "border-primary-500" : "border-gray-300"}`} />
-            )}
-
-            {/* Label */}
-            <div className="mt-3 text-center">
-              <div className="text-xs font-semibold text-black">{label}</div>
-              <div className="text-xs text-gray-500 mt-2">
-                {index === 0
-                  ? "Some basic informations we need to get to know you"
-                  : index === 1
-                  ? "Your health condition that is important to consider"
-                  : "Some contact informations we need to reach out to you"}
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-    <div className="hidden md:flex flex-col items-start py-12 ">
-      {steps.map((label, index) => {
-        const stepNumber = index + 1;
-        const isActive = currentStep === stepNumber;
-        const isCompleted = currentStep > stepNumber;
-
-        return (
-          <div key={index} className="flex items-start space-x-3 relative">
-            {/* Step Circle */}
-            <div className="flex flex-col items-center">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-xl font-bold
-                  ${
-                    isActive || isCompleted
-                      ? "bg-primary-500 text-white"
-                      : "bg-gray-300 text-gray-800"
-                  }`}
-              >
-                {isCompleted ? <FaCheck  size={16} /> : stepNumber}
-              </div>
-
-              {/* Dashed Line */}
-              {index < steps.length - 1 && (
-                <div className={`w-px h-14 border-l-2 border-dashed ${ isCompleted? "border-primary-500" : "border-gray-300"} mt-1`} />
+      {/* Desktop: vertical timeline */}
+      <ol className="hidden md:block">
+        {onboardingSteps.map((step, index) => {
+          const n = index + 1;
+          const isActive = currentStep === n;
+          const isDone = currentStep > n;
+          return (
+            <li key={step.label} className="relative flex gap-4 pb-10 last:pb-0">
+              {index < onboardingSteps.length - 1 && (
+                <span className="absolute left-[17px] top-10 h-[calc(100%-44px)] w-px bg-ink-200">
+                  <span
+                    className="block w-full gradient-primary-to-b transition-all duration-700"
+                    style={{ height: isDone ? "100%" : "0%" }}
+                  />
+                </span>
               )}
-            </div>
-
-            {/* Labels */}
-            <div>
-              <div className="text-sm font-semibold text-black">{label}</div>
-              <div className="text-xs text-gray-500 mt-2">
-                {index === 0
-                  ? "Some basic informations we need to get to know you"
-                  : index === 1
-                  ? "Your health condition that is important to consider"
-                  : "Some basic informations we need to get to know you"}
+              <span
+                className={`relative grid size-9 shrink-0 place-items-center rounded-full text-sm font-semibold transition-all duration-500 ${
+                  isDone
+                    ? "gradient-primary text-white"
+                    : isActive
+                    ? "bg-white text-primary-500 ring-2 ring-primary-500 shadow-glow"
+                    : "bg-white text-ink-400 ring-1 ring-ink-200"
+                }`}
+              >
+                {isDone ? <FiCheck className="size-4" /> : n}
+              </span>
+              <div className="pt-1.5">
+                <p className={`text-sm font-semibold ${isActive || isDone ? "text-ink-900" : "text-ink-400"}`}>
+                  {step.label}
+                </p>
+                <p className="mt-1 text-[13px] leading-relaxed text-ink-400">{step.desc}</p>
               </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
+            </li>
+          );
+        })}
+      </ol>
     </>
   );
 };

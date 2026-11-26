@@ -1,81 +1,63 @@
-//Icons
-import { FaInstagram } from "react-icons/fa";
+import { FaInstagram, FaFacebookF, FaLinkedinIn } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import { FaFacebook } from "react-icons/fa";
-import { FaLinkedin } from "react-icons/fa";
-
+import { FiPhone, FiStar } from "react-icons/fi";
+import { clinic, doctors } from "../../data/clinic";
+import { SectionHeading } from "../ui/Misc";
 
 export const Doctors = () => {
   return (
-    <div id="dentists" className="pt-40">
-      <div className="text-center">
-        <h1 className="text-3xl lg:text-4xl font-semibold tracking-wider">
-          Meet Our Dedicated Experts
-        </h1>
-        <p className="text-xl tracking-wider py-4 text-gray-500">
-          Our skilled and caring dental team is here to make every visit <br />
-          comfortable and stress-free.
-        </p>
+    <section id="dentists" className="scroll-mt-24">
+      <SectionHeading
+        eyebrow="Our specialists"
+        title="Meet our dedicated"
+        accent="experts"
+        lead="Our skilled and caring dental team is here to make every visit comfortable and stress-free."
+      />
+
+      <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {doctors.map((d) => (
+          <article key={d.id} className="group relative aspect-[3/4] overflow-hidden rounded-[32px] bg-ink-100">
+            <img
+              src={d.image}
+              alt={d.name}
+              loading="lazy"
+              className="absolute inset-0 size-full object-cover object-top transition-transform duration-[1.2s] ease-[var(--ease-luxe)] group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-ink-950/70 via-ink-950/0 to-transparent" />
+
+            <span className="glass absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold text-ink-900 ring-1 ring-white/60">
+              <FiStar className="size-3.5 fill-amber-400 text-amber-400" /> {d.rating}
+            </span>
+
+            <div className="glass absolute inset-x-3 bottom-3 rounded-[24px] p-5 ring-1 ring-white/70 transition-all duration-500 ease-[var(--ease-luxe)]">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-xl font-semibold tracking-tight text-ink-900">{d.name}</h3>
+                  <p className="mt-0.5 text-sm text-ink-500">{d.speciality}</p>
+                </div>
+                <a
+                  href={clinic.phoneHref}
+                  className="inline-flex items-center gap-1.5 rounded-full gradient-primary px-3.5 py-2 text-[13px] font-semibold text-white shadow-glow transition hover:brightness-110"
+                >
+                  <FiPhone className="size-3.5" /> Call now
+                </a>
+              </div>
+              <div className="mt-4 flex items-center gap-1.5 border-t border-ink-200/60 pt-4">
+                {[FaInstagram, FaXTwitter, FaFacebookF, FaLinkedinIn].map((Icon, i) => (
+                  <a
+                    key={i}
+                    href="#"
+                    aria-label="Social profile"
+                    className="grid size-8 place-items-center rounded-full text-ink-500 ring-1 ring-ink-200 transition hover:bg-ink-900 hover:text-white hover:ring-ink-900"
+                  >
+                    <Icon className="size-3.5" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))}
       </div>
-
-      <div className="flex flex-col items-center md:flex-row justify-center flex-wrap lg:flex-nowrap gap-4 xl:gap-16 pt-10">
-        <div className="w-[350px] lg:w-[450px] rounded-xl overflow-hidden relative">
-          <img src="/images/doctor-2.jpg" alt="doctor" className="w-full" loading="lazy"/>
-
-          <div className="absolute bottom-5 right-4 left-4 bg-white px-4 py-6 rounded-2xl">
-            <div className="flex justify-between items-center">
-              <h1 className="text-lg md:text-2xl font-bold">Dr. Tayler Smith</h1>
-              <a href="tel:+212767759400" className="py-0.5 px-6 gradient-primary rounded-full text-white text-sm block">Call Now</a>
-            </div>
-            <span className="text-sm text-gray-500">Dentist Doctor</span>
-
-            <div className="flex gap-3 pt-6 pb-2">
-              <FaInstagram className="text-xl" />
-              <FaXTwitter className="text-xl" />
-              <FaFacebook className="text-xl" />
-              <FaLinkedin className="text-xl" />
-            </div>
-          </div>
-        </div>
-
-        <div className="w-[350px] lg:w-[450px] rounded-xl overflow-hidden relative">
-          <img src="/images/doctor-1.jpg" alt="doctor" className="w-full" loading="lazy"/>
-
-          <div className="absolute bottom-5 right-4 left-4 bg-white px-4 py-6 rounded-2xl">
-            <div className="flex justify-between items-center">
-              <h1 className="text-lg md:text-2xl font-bold">Dr. Cris waxon</h1>
-              <a href="tel:+212767759400" className="py-0.5 px-6 gradient-primary rounded-full text-white text-sm block">Call Now</a>
-            </div>
-            <span className="text-sm text-gray-500">Dentist Doctor</span>
-
-            <div className="flex gap-3 pt-6 pb-2">
-              <FaInstagram className="text-xl" />
-              <FaXTwitter className="text-xl" />
-              <FaFacebook className="text-xl" />
-              <FaLinkedin className="text-xl" />
-            </div>
-          </div>
-        </div>
-
-        <div className="w-[350px] lg:w-[450px] rounded-xl overflow-hidden relative">
-          <img src="/images/doctor-3.jpg" alt="doctor" className="w-full" loading="lazy"/>
-
-          <div className="absolute bottom-5 right-4 left-4 bg-white px-4 py-6 rounded-2xl">
-            <div className="flex justify-between items-center">
-              <h1 className="text-lg md:text-2xl font-bold">Dr. John Doe</h1>
-              <a href="tel:+212767759400" className="py-0.5 px-6 gradient-primary rounded-full text-white text-sm block">Call Now</a>
-            </div>
-            <span className="text-sm text-gray-500">Dentist Doctor</span>
-
-            <div className="flex gap-3 pt-6 pb-2">
-              <FaInstagram className="text-xl" />
-              <FaXTwitter className="text-xl" />
-              <FaFacebook className="text-xl" />
-              <FaLinkedin className="text-xl" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </section>
   );
 };

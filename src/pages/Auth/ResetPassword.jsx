@@ -1,104 +1,70 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import axios from "axios";
-import { FaArrowLeft } from "react-icons/fa";
+import { FiArrowLeft } from "react-icons/fi";
+import { flash } from "../../utils/flash";
+import { useResetPassword } from "../../hooks/useAuth";
+import { AuthLayout } from "../../components/auth/AuthLayout";
+import { PasswordInput } from "../../components/ui/Field";
+import { Button } from "../../components/ui/Button";
 
 export const ResetPassword = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
   const email = searchParams.get("email");
-
   const navigate = useNavigate();
+  const reset = useResetPassword();
 
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
-  const [message, setMessage] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleSubmit = async (e) => {
-    setIsSubmitted(true);
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    try {
-      const res = await axios.post("http://localhost:8000/api/reset-password", {
-        token,
-        email,
-        password,
-        password_confirmation: passwordConfirmation,
-      });
-
-      setMessage(res.data.status);
-    } catch (error) {
-      setMessage(
-        "Failed to reset password. Please check the link or try again."
-      );
-    } finally {
-      setIsSubmitted(false);
-      navigate("/login");
-    }
+    reset.mutate(
+      { token, email, password, password_confirmation: passwordConfirmation },
+      {
+        onSuccess: (data) => {
+          flash.show(data?.status || "Password reset successfully", "success", 3000);
+          navigate("/login");
+        },
+      }
+    );
   };
 
   return (
-    <div className="flex md:items-center justify-center h-screen">
-      <div className="w-[550px] mx-auto mt-10 p-4 shadow-lg rounded bg-white">
-        <div className="flex items-center justify-center py-4">
-          <img src="/images/logo.png" alt="icon" />
-        </div>
-        <div className="">
-          <h2 className="text-2xl font-semibold py-4 text-center">
-            Reset Your Password
-          </h2>
-          <form onSubmit={handleSubmit}>
-            <label
-              htmlFor="password"
-              className="block text-lg text-zinc-600 font-bold mb-2"
-            >
-              Password :
-            </label>
-            <input
-              id="password"
-              type="password"
-              placeholder="New password"
-              value={password}
-              required
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border-2 border-gray-400 focus:outline-none focus:border-primary-500 px-3 py-2 rounded-lg mb-6"
-            />
+    <AuthLayout
+      title="Reset your"
+      accent="password"
+      subtitle={email ? <>Choose a new password for <b className="text-ink-800">{email}</b>.</> : "Choose a new password."}
+    >
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <PasswordInput
+          label="New password"
+          autoComplete="new-password"
+          placeholder="New password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <PasswordInput
+          label="Confirm password"
+          autoComplete="new-password"
+          placeholder="Repeat new password"
+          required
+          value={passwordConfirmation}
+          onChange={(e) => setPasswordConfirmation(e.target.value)}
+          error={reset.isError && "Failed to reset password. Please check the link or try again."}
+        />
+        <Button type="submit" size="lg" loading={reset.isPending} className="w-full">
+          {reset.isPending ? "Resetting…" : "Reset password"}
+        </Button>
+      </form>
 
-            <label
-              htmlFor="confirm-password"
-              className="block text-lg text-zinc-600 font-bold mb-2"
-            >
-              Confirm Password :
-            </label>
-            <input
-              id="confirm-password"
-              type="password"
-              placeholder="Confirm password"
-              value={passwordConfirmation}
-              required
-              onChange={(e) => setPasswordConfirmation(e.target.value)}
-              className="w-full border-2 border-gray-400 focus:outline-none focus:border-primary-500 px-3 py-2 rounded-lg mb-3"
-            />
-            <button
-              disabled={isSubmitted}
-              type="submit"
-              className={`w-full bg-primary-500 text-md md:text-lg text-white py-2 rounded-lg transition-colors duration-300 hover:bg-blue-600 ${
-                isSubmitted ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-              }`}
-            >
-              {isSubmitted ? "Resetting..." : "Reset Password"}
-            </button>
-            <Link
-              to="/login"
-              className="w-full text-md md:text-lg text-zinc-600 font-bold rounded-lg pt-4 inline-block text-center"
-            >
-              <FaArrowLeft className="inline-block me-2" /> Back To Login
-            </Link>
-            {message && <p className="mt-3 text-sm text-gray-700">{message}</p>}
-          </form>
-        </div>
-      </div>
-    </div>
+      <Link
+        to="/login"
+        className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-ink-600 transition hover:text-ink-900"
+      >
+        <FiArrowLeft /> Back to sign in
+      </Link>
+    </AuthLayout>
   );
 };

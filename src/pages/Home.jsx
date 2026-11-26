@@ -10,37 +10,22 @@ import { Footer } from "../components/Home/Footer";
 
 import { FadeInSection } from "../components/fadeIn/FadeInSection";
 
+const sections = [Services, About, Doctors, Testimonials, Location, Contact];
+
 export const Home = () => {
   return (
-    <div>
+    <div className="bg-ivory">
       <Navigation />
+      <Hero />
 
-      <div className="px-8 md:px-10 2xl:px-32">
-        <Hero />
-        <FadeInSection>
-          <Services />
-        </FadeInSection>
+      <main className="mx-auto flex max-w-[1360px] flex-col gap-28 px-5 py-28 md:gap-40 md:px-8 md:py-40">
+        {sections.map((Section, i) => (
+          <FadeInSection key={i}>
+            <Section />
+          </FadeInSection>
+        ))}
+      </main>
 
-        <FadeInSection>
-          <About />
-        </FadeInSection>
-
-        <FadeInSection>
-          <Doctors />
-        </FadeInSection>
-
-        <FadeInSection>
-          <Testimonials />
-        </FadeInSection>
-
-        <FadeInSection>
-          <Location />
-        </FadeInSection>
-
-        <FadeInSection>
-          <Contact />
-        </FadeInSection>
-      </div>
       <Footer />
     </div>
   );
